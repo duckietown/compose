@@ -1,3 +1,11 @@
+## 1.3.5 (January 22, 2026)
+  - Update ASSETS_STORE_URL to new repository
+  - Merge pull request #1 from duckietown/DTSW-7094-fix-php-version-7-0-not-found-in-dt-compose-commons
+  - Bump version to 1.3.4.
+  - Moved project from afdaniele to duckietown
+  - Bump version to 1.3.4.
+  - Moved project from afdaniele to duckietown
+
 ## 1.3.4 (August 25, 2025)
   - updated php from 7.0 to 7.4
 
