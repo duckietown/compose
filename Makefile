@@ -3,6 +3,13 @@
 
 DEFAULT_ARCH=amd64
 ARCH=${DEFAULT_ARCH}
+
+# Map ARCH tag suffix -> docker platform arch
+# (arm64v8 is a tag suffix; platform must be arm64)
+PLATFORM_ARCH=$(shell \
+  if [ "${ARCH}" = "arm64v8" ]; then echo "arm64"; else echo "${ARCH}"; fi \
+)
+
 IMAGE=duckietown/compose
 BASE_VERSION=stable
 H=unix:///var/run/docker.sock
@@ -21,7 +28,6 @@ GIT_SHA=$(shell git rev-parse HEAD || :)
 DOCKERFILE=Dockerfile
 COMPOSE_VERSION=${VERSION}
 
-
 debug-build:
 	$(MAKE) build
 	$(MAKE) build \
@@ -34,6 +40,9 @@ debug-build:
 
 build:
 	docker -H=${H} buildx build \
+		--platform=linux/${PLATFORM_ARCH} \
+		--pull \
+		--load \
 		-t "${IMAGE}:${VERSION}-${ARCH}" \
 		-t "${IMAGE}:${TAG}-${ARCH}" \
 		${EXTRA_TAG} \
@@ -85,31 +94,4 @@ push_all_arch:
 	  -- \
 	    make \
 	      push \
-	        ARCH={arch}
-
-_build_all:
-	set -e; \
-	TAGS=`git tag | sed -z "s/\n/,/g"`; \
-	TAGS=$${TAGS::-1}; \
-	brun \
-	  -f tag:list:$${TAGS} \
-	  -f arch:list:amd64,arm64v8 \
-	  -- \
-	    make \
-	      build \
-	      push \
-	        VERSION={tag} \
-	        ARCH={arch}
-
-_clean_all:
-	set -e; \
-	TAGS=`git tag | sed -z "s/\n/,/g"`; \
-	TAGS=$${TAGS::-1}; \
-	brun \
-	  -f tag:list:$${TAGS} \
-	  -f arch:list:amd64,arm64v8 \
-	  -- \
-	    make \
-	      clean \
-	        VERSION={tag} \
 	        ARCH={arch}
