@@ -1,5 +1,5 @@
 {
-    "name" : "Settings",
+    "name" : "Dashboard Settings",
     "package" : "core",
     "menu_entry" : {
         "order" : 5,

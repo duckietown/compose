@@ -33,16 +33,14 @@ use \system\classes\Core;
           $login_enabled = Core::getSetting('login_enabled', 'core');
           if( $login_enabled ){
             ?>
+            <?php /* Google Sign-In unused on Duckiebots — commented out
             <div id="g-signin" class="text-left" style="margin-left:100px;"></div>
-            <!--  -->
             <img id="signin-loader" src="<?php echo Configuration::$BASE ?>images/loading_blue.gif" style="display:none; width:32px; height:32px; margin-top:10px">
+            */ ?>
             <?php
             // get list of login plugins files
             $login_addon_files_per_pkg = Core::getPackagesModules('login', null);
-            if(count($login_addon_files_per_pkg) > 0){
-              echo '<legend style="width: 100px; margin: 20px auto"></legend>';
-            }
-            // render add-ons
+            // render add-ons (Duckietown token sign-in)
             foreach ($login_addon_files_per_pkg as $pkg_id => $login_addon_files) {
               require_once $login_addon_files[0];
             }
@@ -56,14 +54,23 @@ use \system\classes\Core;
 
         <legend style="margin-top:4px"></legend>
 
+        <?php /* Google API notice unused — commented out
         <p style="color:grey">
           <?php echo Core::getSiteName() ?> uses the <a href="https://developers.google.com/identity/">Google Sign-In API</a>
           authentication service.
         </p>
+        */ ?>
+        <p style="color:grey; margin: 0;">
+          Paste your Duckietown token to sign in.
+          <a href="https://hub.duckietown.com/profile/" target="_blank">Get a token</a>
+          if you do not have one.
+        </p>
       </div>
     </div>
   </div>
-  <p class="text-center muted" style="color:grey; margin-top:-10px">&copy; Copyright <?php echo date("Y"); ?> - <?php echo Core::getSiteName() ?></p>
+  <p class="text-left muted" style="color:grey; margin: 10px auto; width:480px; font-size: 12px;">
+    &copy; Copyright <?php echo date("Y"); ?> - <?php echo Core::getSiteName() ?>
+  </p>
 </section>
 
 <script type="text/javascript">

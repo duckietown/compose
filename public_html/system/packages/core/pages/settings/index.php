@@ -78,95 +78,96 @@ $settings_tabs = [
         'content' => settings_custom_package_tab,
         'content_args' => ['core', Core::getPackageSettings('core')]
     ],
-    1 => [
+];
+
+$developer_mode = (bool) Core::getSetting('developer_mode', 'core', false);
+
+if ($developer_mode) {
+    $settings_tabs[1] = [
         'id' => 'packages',
         'title' => 'Packages',
         'icon' => 'fa fa-cubes',
         'content' => settings_packages_tab,
         'content_args' => null
-    ],
-    2 => [
+    ];
+    $settings_tabs[2] = [
         'id' => 'pages',
         'title' => 'Pages',
         'icon' => 'fa fa-file-text-o',
         'content' => settings_pages_tab,
         'content_args' => null
-    ],
-    3 => [
+    ];
+    $settings_tabs[3] = [
         'id' => 'api',
         'title' => 'API End-points',
         'icon' => 'fa fa-sitemap',
         'content' => settings_api_tab,
         'content_args' => null
-    ],
-    4 => [
+    ];
+    $settings_tabs[4] = [
         'id' => 'roles',
         'title' => 'User roles',
         'icon' => 'fa fa-users',
         'content' => settings_user_roles_tab,
         'content_args' => null
-    ],
-    10 => [
+    ];
+    $settings_tabs[10] = [
         'id' => 'theme',
         'title' => 'Theme',
         'icon' => 'fa fa-paint-brush',
         'content' => settings_theme_tab,
         'content_args' => null
-    ],
-
+    ];
     // [21-100] reserved for packages
-
     // [101-400] free to use
-
     // #501 reserved for cache tab
-
     // [502-600] reserved for \compose\ tabs
-    502 => [
+    $settings_tabs[502] = [
         'id' => 'php',
         'title' => 'PHP Info',
         'icon' => 'fa fa-server',
         'content' => settings_phpinfo_tab,
         'content_args' => null
-    ],
-    580 => [
+    ];
+    $settings_tabs[580] = [
         'id' => 'codebase',
         'title' => 'Codebase',
         'icon' => 'fa fa-code',
         'content' => settings_codebase_tab,
         'content_args' => null
-    ]
-];
-
-if( Cache::enabled() ){
-    // add cache tab if the flag is active
-    $settings_tabs[501] = [
-        'id' => 'cache',
-        'title' => 'Cache',
-        'icon' => 'fa fa-history',
-        'content' => settings_cache_tab,
-        'content_args' => null
     ];
-}
 
-$i = 21;
-foreach (Core::getPackagesList() as $pkg_id => $pkg) {
-    if ($pkg_id == 'core') continue;
-    $pkg_setts = Core::getPackageSettings($pkg_id);
-    // skip package if it is not configurable
-    if (!$pkg_setts['data'] instanceof EditableConfiguration ||
-        !$pkg_setts['data']->is_configurable()){
-        continue;
+    if( Cache::enabled() ){
+        // add cache tab if the flag is active
+        $settings_tabs[501] = [
+            'id' => 'cache',
+            'title' => 'Cache',
+            'icon' => 'fa fa-history',
+            'content' => settings_cache_tab,
+            'content_args' => null
+        ];
     }
-    // render package-specific tab
-    $settings_tabs[$i] = [
-        'id' => 'package_'.$pkg_id,
-        'title' => 'Package: <b>'.$pkg['name'].'</b>',
-        'icon' => 'fa fa-cube',
-        'content' => settings_custom_package_tab,
-        'content_args' => [$pkg_id, $pkg_setts]
-    ];
-    // ---
-    $i += 1;
+
+    $i = 21;
+    foreach (Core::getPackagesList() as $pkg_id => $pkg) {
+        if ($pkg_id == 'core') continue;
+        $pkg_setts = Core::getPackageSettings($pkg_id);
+        // skip package if it is not configurable
+        if (!$pkg_setts['data'] instanceof EditableConfiguration ||
+            !$pkg_setts['data']->is_configurable()){
+            continue;
+        }
+        // render package-specific tab
+        $settings_tabs[$i] = [
+            'id' => 'package_'.$pkg_id,
+            'title' => 'Package: <b>'.$pkg['name'].'</b>',
+            'icon' => 'fa fa-cube',
+            'content' => settings_custom_package_tab,
+            'content_args' => [$pkg_id, $pkg_setts]
+        ];
+        // ---
+        $i += 1;
+    }
 }
 ?>
 
