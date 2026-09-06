@@ -78,6 +78,9 @@ function settings_custom_package_tab( $args, $settings_tab_id ){
     if ($hide_advanced_core && isset($schema_for_form['_data']) && is_array($schema_for_form['_data'])) {
         $operator_keys = ['maintenance_mode' => true, 'developer_mode' => true];
         $schema_for_form['_data'] = array_intersect_key($schema_for_form['_data'], $operator_keys);
+        if (is_array($config_values)) {
+            $config_values = array_intersect_key($config_values, $operator_keys);
+        }
     }
 
     $form = new SmartForm($schema_for_form, $config_values);

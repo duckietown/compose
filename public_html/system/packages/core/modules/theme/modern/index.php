@@ -14,14 +14,20 @@ $is_embed = isset($_GET['embed']) && $_GET['embed'] !== '' && $_GET['embed'] !==
 if ($is_embed) {
     $page_class .= ' is-embed';
 }
-?>
 
-<style type="text/css">
-<?php echo file_get_contents(join_path(__DIR__, 'components/design_system.css')); ?>
-</style>
-<script type="text/javascript">
-<?php echo file_get_contents(join_path(__DIR__, 'components/design_system.js')); ?>
-</script>
+$ds_css_path = join_path(__DIR__, 'components/design_system.css');
+$ds_js_path = join_path(__DIR__, 'components/design_system.js');
+$ds_css_url = Configuration::$BASE . 'system/packages/core/modules/theme/modern/components/design_system.css';
+$ds_js_url = Configuration::$BASE . 'system/packages/core/modules/theme/modern/components/design_system.js';
+if (is_file($ds_css_path)) {
+    $ds_css_url .= '?v=' . filemtime($ds_css_path);
+}
+if (is_file($ds_js_path)) {
+    $ds_js_url .= '?v=' . filemtime($ds_js_path);
+}
+?>
+<link rel="stylesheet" href="<?php echo htmlspecialchars($ds_css_url, ENT_QUOTES, 'UTF-8') ?>">
+<script src="<?php echo htmlspecialchars($ds_js_url, ENT_QUOTES, 'UTF-8') ?>"></script>
 
 <style type="text/css">
     body {

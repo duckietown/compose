@@ -119,7 +119,31 @@
     
     // redirect to default page if the page is invalid
     if ($requested_page == '' || !in_array($requested_page, $available_pages)) {
-        // invalid page
+        $is_embed = isset($_GET['embed']) && $_GET['embed'] !== '' && $_GET['embed'] !== '0';
+        $pages_by_id = Core::getPagesList('by-id');
+        $page_exists = is_array($pages_by_id)
+            && isset($pages_by_id[$requested_page])
+            && !empty($pages_by_id[$requested_page]['enabled']);
+        $login_enabled = (bool) Core::getSetting('login_enabled', 'core');
+
+        // Iframes must not window.open(..., "_top") — that steals the parent dashboard.
+        if ($is_embed && $page_exists) {
+            $embed_denied_page = $requested_page;
+            require join_path($GLOBALS['__CORE__PACKAGE__DIR__'], 'modules/embed_unauthorized.php');
+            exit;
+        }
+
+        // Signed-out users hitting a real, protected page go to Sign in (with return),
+        // not silently to the default Robot page.
+        if ($page_exists
+            && $requested_page !== ''
+            && !Core::isUserLoggedIn()
+            && $login_enabled
+            && in_array('login', $available_pages, true)
+        ) {
+            Core::redirectTo('login', true);
+        }
+
         $redirect_page = $default_page;
         Core::redirectTo($redirect_page, $redirect_page == 'login');
     }

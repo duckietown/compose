@@ -14,11 +14,18 @@ use \system\classes\Core;
       <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;">
         <h3><i class="fa fa-lock" aria-hidden="true"></i> Sign in</h3>
         <?php
-          $logo = Core::getSetting('logo_black');
-          $base = Configuration::$BASE;
-          $logo = str_replace('~', $base, str_replace('~/', '~', $logo));
+          $logo = Core::getSetting('logo_black', 'core', '');
+          if (!is_string($logo) || strlen(trim($logo)) === 0) {
+              $logo = Core::getSetting('logo_white', 'core', '');
+          }
+          if (!is_string($logo)) {
+              $logo = '';
+          }
+          $logo = str_replace('~', Configuration::$BASE, str_replace('~/', '~', $logo));
+          if (strlen(trim($logo)) > 0) {
         ?>
-        <img id="loginLogo" src="<?php echo $logo ?>" alt="">
+        <img id="loginLogo" src="<?php echo htmlspecialchars($logo, ENT_QUOTES, 'UTF-8') ?>" alt="">
+        <?php } ?>
       </div>
       <p class="dt-login-lead">Paste your Duckietown token to sign in.</p>
 
@@ -40,7 +47,7 @@ use \system\classes\Core;
     </div>
   </div>
   <p class="dt-login-copy">
-    &copy; Copyright <?php echo date("Y"); ?> - <?php echo Core::getSiteName() ?>
+    &copy; Copyright <?php echo date("Y"); ?> - <?php echo htmlspecialchars((string) (Core::getSiteName() ?? ''), ENT_QUOTES, 'UTF-8') ?>
   </p>
 </section>
 

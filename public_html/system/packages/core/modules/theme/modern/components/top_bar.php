@@ -34,6 +34,47 @@ $developer_only_pages = [
     'maintenance',
 ];
 
+$page_is_navigable = function ($page) use (
+    $pages_whitelist,
+    $pages_blacklist,
+    $main_user_role,
+    $user_roles,
+    $developer_mode,
+    $developer_only_pages
+) {
+    if (!is_array($page) || !isset($page['id'])) {
+        return false;
+    }
+    $id = $page['id'];
+    if ($id === 'login') {
+        return false;
+    }
+    if (isset($page['enabled']) && empty($page['enabled'])) {
+        return false;
+    }
+    if (isset($page['access_level']) && is_array($page['access_level'])
+        && count(array_intersect($user_roles, $page['access_level'])) === 0) {
+        return false;
+    }
+    if (!is_null($pages_whitelist) && !in_array($id, $pages_whitelist)) {
+        return false;
+    }
+    if (!is_null($pages_blacklist) && in_array($id, $pages_blacklist)) {
+        return false;
+    }
+    if ($main_user_role != 'administrator' && Core::getSetting('maintenance_mode', 'core')) {
+        return false;
+    }
+    if (!$developer_mode && in_array($id, $developer_only_pages)) {
+        return false;
+    }
+    $exclude_roles = isset($page['menu_entry']['exclude_roles']) ? $page['menu_entry']['exclude_roles'] : [];
+    if (is_array($exclude_roles) && count(array_intersect($user_roles, $exclude_roles)) > 0) {
+        return false;
+    }
+    return true;
+};
+
 $pages = Core::getFilteredPagesList(
     'by-menuorder',
     true,
@@ -49,32 +90,15 @@ foreach ($page_rows as $page) {
     if (!is_array($page) || !isset($page['id'], $page['menu_entry'])) {
         continue;
     }
-    if ($page['id'] == 'login') {
-        continue;
-    }
-    if (!is_null($pages_whitelist) && !in_array($page['id'], $pages_whitelist)) {
-        continue;
-    }
-    if (!is_null($pages_blacklist) && in_array($page['id'], $pages_blacklist)) {
-        continue;
-    }
-    if ($main_user_role != 'administrator' && Core::getSetting('maintenance_mode', 'core') && $page['id'] != 'login') {
-        continue;
-    }
-    if (!$developer_mode && in_array($page['id'], $developer_only_pages)) {
-        continue;
-    }
-    $exclude_roles = isset($page['menu_entry']['exclude_roles']) ? $page['menu_entry']['exclude_roles'] : [];
-    if (is_array($exclude_roles) && count(array_intersect($user_roles, $exclude_roles)) > 0) {
+    if (!$page_is_navigable($page)) {
         continue;
     }
     $visible[$page['id']] = $page;
 }
 
-// Always offer Robot as the home destination when the page exists.
 $pages_by_id = Core::getPagesList('by-id');
-if (!isset($visible['robot']) && isset($pages_by_id['robot']) && !empty($pages_by_id['robot']['enabled'])) {
-    $visible['robot'] = $pages_by_id['robot'];
+if (!is_array($pages_by_id)) {
+    $pages_by_id = [];
 }
 
 $primary_nav = [];
@@ -99,14 +123,45 @@ $current_page_id = Configuration::$PAGE;
 $current_page_name = ucfirst((string) Core::getPageDetails($current_page_id, 'name'));
 $show_page_title = ($current_page_id !== 'robot');
 
-$logo = Core::getSetting('logo_black');
+$logo = Core::getSetting('logo_black', 'core', '');
 if (!is_string($logo) || strlen(trim($logo)) === 0) {
-    $logo = Core::getSetting('logo_white');
+    $logo = Core::getSetting('logo_white', 'core', '');
+}
+if (!is_string($logo)) {
+    $logo = '';
 }
 $logo = str_replace('~', Configuration::$BASE, str_replace('~/', '~', $logo));
-$home_url = (isset($pages_by_id['robot']) && !empty($pages_by_id['robot']['enabled']))
-    ? Core::getURL('robot')
-    : Configuration::$BASE;
+
+$navbar_title = Core::getSetting('navbar_title', 'core', '');
+if (!is_string($navbar_title)) {
+    $navbar_title = '';
+}
+
+$navbar_subtitle = Core::getSetting('navbar_subtitle', 'core', '');
+if (!is_string($navbar_subtitle)) {
+    $navbar_subtitle = '';
+}
+
+// Brand home is Robot only when that page is allowed for this viewer.
+$robot_page = (isset($pages_by_id['robot']) && is_array($pages_by_id['robot']))
+    ? $pages_by_id['robot']
+    : null;
+$robot_home_allowed = ($robot_page && $page_is_navigable($robot_page));
+$home_url = $robot_home_allowed ? Core::getURL('robot') : Configuration::$BASE;
+if (!is_string($home_url) || $home_url === '') {
+    $home_url = Configuration::$BASE;
+}
+
+$settings_page = (isset($pages_by_id['settings']) && is_array($pages_by_id['settings']))
+    ? $pages_by_id['settings']
+    : null;
+$show_settings = ($settings_page && $page_is_navigable($settings_page));
+
+if (!function_exists('_ctheme_esc')) {
+function _ctheme_esc($value) {
+    return htmlspecialchars((string) ($value ?? ''), ENT_QUOTES, 'UTF-8');
+}
+}
 
 if (!function_exists('_ctheme_page_icon')) {
 function _ctheme_page_icon($page) {
@@ -419,33 +474,30 @@ function _ctheme_nav_link_class($page, $current_page_id) {
 
 <div class="_ctheme_top_bar_inner">
     <div class="_ctheme_top_bar_left">
-        <a class="_ctheme_brand<?php echo ($current_page_id === 'robot') ? ' is-current' : '' ?>" href="<?php echo $home_url ?>" title="Robot dashboard">
-            <img src="<?php echo htmlspecialchars($logo) ?>" alt="">
+        <a class="_ctheme_brand<?php echo ($current_page_id === 'robot') ? ' is-current' : '' ?>"
+           href="<?php echo _ctheme_esc($home_url) ?>"
+           title="<?php echo $robot_home_allowed ? 'Robot dashboard' : 'Home' ?>">
+            <img src="<?php echo _ctheme_esc($logo) ?>" alt="">
             <span class="_ctheme_brand_text">
-                <span class="_ctheme_brand_title"><?php echo htmlspecialchars(Core::getSetting('navbar_title')) ?></span>
-                <?php
-                $subtitle = Core::getSetting('navbar_subtitle');
-                if (!is_null($subtitle) && strlen(trim($subtitle)) > 0) {
-                    ?>
-                    <span class="_ctheme_brand_subtitle"><?php echo htmlspecialchars($subtitle) ?></span>
-                    <?php
-                }
-                ?>
+                <span class="_ctheme_brand_title"><?php echo _ctheme_esc($navbar_title) ?></span>
+                <?php if (strlen(trim($navbar_subtitle)) > 0) { ?>
+                    <span class="_ctheme_brand_subtitle"><?php echo _ctheme_esc($navbar_subtitle) ?></span>
+                <?php } ?>
             </span>
         </a>
 
         <nav class="_ctheme_nav_links" aria-label="Primary">
             <?php foreach ($primary_nav as $page) { ?>
                 <a class="_ctheme_nav_link <?php echo _ctheme_nav_link_class($page, $current_page_id) ?>"
-                   href="<?php echo Core::getURL($page['id']) ?>">
+                   href="<?php echo _ctheme_esc(Core::getURL($page['id'])) ?>">
                     <span class="<?php echo _ctheme_page_icon($page) ?>" aria-hidden="true"></span>
-                    <?php echo htmlspecialchars($page['name']) ?>
+                    <?php echo _ctheme_esc($page['name']) ?>
                 </a>
             <?php } ?>
         </nav>
 
         <?php if ($show_page_title && strlen($current_page_name) > 0) { ?>
-            <div class="_ctheme_page_title"><?php echo htmlspecialchars($current_page_name) ?></div>
+            <div class="_ctheme_page_title"><?php echo _ctheme_esc($current_page_name) ?></div>
         <?php } ?>
     </div>
 
@@ -459,9 +511,9 @@ function _ctheme_nav_link_class($page, $current_page_id) {
             <ul class="dropdown-menu dropdown-menu-right">
                 <?php foreach ($primary_nav as $page) { ?>
                     <li class="<?php echo _ctheme_nav_link_class($page, $current_page_id) ?>">
-                        <a href="<?php echo Core::getURL($page['id']) ?>">
+                        <a href="<?php echo _ctheme_esc(Core::getURL($page['id'])) ?>">
                             <span class="<?php echo _ctheme_page_icon($page) ?>" aria-hidden="true"></span>
-                            &nbsp;<?php echo htmlspecialchars($page['name']) ?>
+                            &nbsp;<?php echo _ctheme_esc($page['name']) ?>
                         </a>
                     </li>
                 <?php } ?>
@@ -470,9 +522,9 @@ function _ctheme_nav_link_class($page, $current_page_id) {
                     <li class="dropdown-header">Developer</li>
                     <?php foreach ($more_nav as $page) { ?>
                         <li>
-                            <a href="<?php echo Core::getURL($page['id']) ?>">
+                            <a href="<?php echo _ctheme_esc(Core::getURL($page['id'])) ?>">
                                 <span class="<?php echo _ctheme_page_icon($page) ?>" aria-hidden="true"></span>
-                                &nbsp;<?php echo htmlspecialchars($page['name']) ?>
+                                &nbsp;<?php echo _ctheme_esc($page['name']) ?>
                             </a>
                         </li>
                     <?php } ?>
@@ -492,9 +544,9 @@ function _ctheme_nav_link_class($page, $current_page_id) {
                 <li class="dropdown-header">Developer</li>
                 <?php foreach ($more_nav as $page) { ?>
                     <li class="<?php echo _ctheme_nav_link_class($page, $current_page_id) ?>">
-                        <a href="<?php echo Core::getURL($page['id']) ?>">
+                        <a href="<?php echo _ctheme_esc(Core::getURL($page['id'])) ?>">
                             <span class="<?php echo _ctheme_page_icon($page) ?>" aria-hidden="true"></span>
-                            &nbsp;<?php echo htmlspecialchars($page['name']) ?>
+                            &nbsp;<?php echo _ctheme_esc($page['name']) ?>
                         </a>
                     </li>
                 <?php } ?>
@@ -502,9 +554,9 @@ function _ctheme_nav_link_class($page, $current_page_id) {
         </div>
         <?php } ?>
 
-        <?php if (Core::isComposeConfigured()) { ?>
+        <?php if ($show_settings) { ?>
             <a class="_ctheme_icon_btn <?php echo ($current_page_id === 'settings') ? 'active' : '' ?>"
-               href="<?php echo Core::getURL('settings') ?>"
+               href="<?php echo _ctheme_esc(Core::getURL('settings')) ?>"
                data-toggle="tooltip" data-placement="bottom" title="Dashboard Settings" aria-label="Dashboard Settings">
                 <span class="fa fa-cog" aria-hidden="true"></span>
             </a>
@@ -513,20 +565,24 @@ function _ctheme_nav_link_class($page, $current_page_id) {
         <?php
         if (Core::isUserLoggedIn()) {
             $user = Core::getUserLogged();
-            $picture_url = $user['picture'];
+            $picture_url = isset($user['picture']) ? $user['picture'] : '';
+            if (!is_string($picture_url)) {
+                $picture_url = '';
+            }
             if (preg_match('#^https?://#i', $picture_url) !== 1) {
                 $picture_url = sanitize_url(sprintf('%s%s', Configuration::$BASE, $picture_url));
             }
+            $user_name = isset($user['name']) ? $user['name'] : '';
             ?>
             <div class="dropdown">
                 <a class="_ctheme_user_toggle dropdown-toggle" href="#" data-toggle="dropdown" role="button"
-                   aria-haspopup="true" aria-expanded="false" title="<?php echo htmlspecialchars($user['name']) ?>">
-                    <img src="<?php echo htmlspecialchars($picture_url) ?>" alt="">
-                    <span class="_ctheme_user_name"><?php echo htmlspecialchars($user['name']) ?></span>
+                   aria-haspopup="true" aria-expanded="false" title="<?php echo _ctheme_esc($user_name) ?>">
+                    <img src="<?php echo _ctheme_esc($picture_url) ?>" alt="">
+                    <span class="_ctheme_user_name"><?php echo _ctheme_esc($user_name) ?></span>
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-right">
-                    <li class="dropdown-header"><?php echo htmlspecialchars($user['name']) ?></li>
+                    <li class="dropdown-header"><?php echo _ctheme_esc($user_name) ?></li>
                     <li>
                         <a href="https://hub.duckietown.com/" target="_blank" rel="noopener noreferrer">
                             <span class="fa fa-external-link" aria-hidden="true"></span>
@@ -541,14 +597,14 @@ function _ctheme_nav_link_class($page, $current_page_id) {
                     </li>
                     <li role="separator" class="divider"></li>
                     <li class="_ctheme_dropdown_foot">
-                        &copy; <?php echo date('Y') ?> <?php echo htmlspecialchars(Core::getSiteName()) ?>
+                        &copy; <?php echo date('Y') ?> <?php echo _ctheme_esc(Core::getSiteName()) ?>
                     </li>
                 </ul>
             </div>
             <?php
         } else if ($login_enabled) {
             ?>
-            <a class="_ctheme_nav_link" href="<?php echo Core::getURL('login') ?>" title="Sign in">
+            <a class="_ctheme_nav_link" href="<?php echo _ctheme_esc(Core::getURL('login')) ?>" title="Sign in">
                 <span class="fa fa-sign-in" aria-hidden="true"></span>
                 Sign in
             </a>
