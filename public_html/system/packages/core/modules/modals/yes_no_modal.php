@@ -5,8 +5,7 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
                             class="sr-only">Close</span></button>
-                <h4 style="margin:0 4px 0 4px"><span class="glyphicon glyphicon-question-sign"
-                                                     aria-hidden="true"></span> Confirm?</h4>
+                <h4 style="margin:0 4px 0 4px"><i class="fa fa-question-circle" aria-hidden="true"></i> Confirm?</h4>
             </div>
 
             <div class="modal-body">
@@ -15,7 +14,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-                <button type="button" class="btn btn-success" id="yes-button">Yes</button>
+                <button type="button" class="btn btn-primary" id="yes-button">Yes</button>
             </div>
 
         </div><!-- /.modal-content -->

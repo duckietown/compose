@@ -48,6 +48,7 @@ $mains = [
     'groups' => ['position' => 'right', 'url' => Core::getURL('users', 'groups')]
 ];
 ?>
+<div class="dt-page">
 <h2 class="page-title-static text-center" style="display: block">
     <?php
     foreach ($mains as $mkey => $mdata) {
@@ -62,3 +63,4 @@ $mains = [
 <?php
 include_once sprintf('%s/sections/%s.php', __DIR__, $section);
 ?>
+</div>

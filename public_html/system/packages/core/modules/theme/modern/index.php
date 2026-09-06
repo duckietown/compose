@@ -10,8 +10,18 @@ include_once join_path(__DIR__, 'constants.php');
 
 $CORE_PKG_DIR = $GLOBALS['__CORE__PACKAGE__DIR__'];
 $page_class = 'page-' . preg_replace('/[^a-zA-Z0-9_-]/', '', (string) Configuration::$PAGE);
+$is_embed = isset($_GET['embed']) && $_GET['embed'] !== '' && $_GET['embed'] !== '0';
+if ($is_embed) {
+    $page_class .= ' is-embed';
+}
 ?>
 
+<style type="text/css">
+<?php echo file_get_contents(join_path(__DIR__, 'components/design_system.css')); ?>
+</style>
+<script type="text/javascript">
+<?php echo file_get_contents(join_path(__DIR__, 'components/design_system.js')); ?>
+</script>
 
 <style type="text/css">
     body {
@@ -33,45 +43,19 @@ $page_class = 'page-' . preg_replace('/[^a-zA-Z0-9_-]/', '', (string) Configurat
         overflow: hidden;
         box-shadow: none;
     }
-    
-    /* Layout widths must NOT use !important — collapse toggle sets these via JS/classes */
-    ._ctheme_side_bar {
-        width: 240px;
-        transition: width 160ms ease;
-    }
 
     ._ctheme_container {
         position: absolute;
         top: 52px;
         bottom: 0;
-        left: 240px;
+        left: 0;
         right: 0;
-        border-left: 1px solid #e0e0e0;
-        transition: left 160ms ease;
+        border-left: none;
     }
 
     ._ctheme_top_bar {
-        left: 240px;
+        left: 0;
         height: 52px;
-        transition: left 160ms ease;
-    }
-
-    /* Collapsed sidebar (toggled by ._ctheme_side_bar_toggle) */
-    ._ctheme_page.is-sidebar-collapsed ._ctheme_side_bar {
-        width: 72px;
-    }
-    ._ctheme_page.is-sidebar-collapsed ._ctheme_container,
-    ._ctheme_page.is-sidebar-collapsed ._ctheme_top_bar {
-        left: 72px;
-    }
-    ._ctheme_page.is-sidebar-collapsed ._ctheme_side_bar_off {
-        display: none !important;
-    }
-    ._ctheme_page.is-sidebar-collapsed ._ctheme_side_bar_on {
-        display: table-row !important;
-    }
-    ._ctheme_page:not(.is-sidebar-collapsed) ._ctheme_side_bar_on {
-        display: none !important;
     }
     
     ._ctheme_content {
@@ -91,8 +75,8 @@ $page_class = 'page-' . preg_replace('/[^a-zA-Z0-9_-]/', '', (string) Configurat
     
     #page_container {
         margin-top: 0;
-        width: 100%;
-        max-width: none;
+        width: 100% !important;
+        max-width: none !important;
         padding-left: 8px;
         padding-right: 8px;
     }
@@ -119,6 +103,26 @@ $page_class = 'page-' . preg_replace('/[^a-zA-Z0-9_-]/', '', (string) Configurat
         inset: 0;
         height: 100%;
     }
+
+    /* Robot-tab embeds: no top bar / page chrome */
+    ._ctheme_body.is-embed {
+        padding: 0;
+        height: 100vh;
+        background: #fff;
+    }
+    ._ctheme_page.is-embed {
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    ._ctheme_page.is-embed ._ctheme_top_bar {
+        display: none !important;
+    }
+    ._ctheme_page.is-embed ._ctheme_container {
+        left: 0;
+        top: 0;
+        border-left: 0;
+    }
     
     /* width */
     ::-webkit-scrollbar {
@@ -141,19 +145,11 @@ $page_class = 'page-' . preg_replace('/[^a-zA-Z0-9_-]/', '', (string) Configurat
 </style>
 
 
-<div class="_ctheme_body col-md-12">
+<div class="_ctheme_body col-md-12<?php echo $is_embed ? ' is-embed' : '' ?>">
     <div class="_ctheme_page col-md-12 <?php echo htmlspecialchars($page_class) ?>">
-        
-        <div class="_ctheme_side_bar">
-            <?php
-            // load top bar
-            include join_path(__DIR__, 'components/side_bar.php')
-            ?>
-        </div>
         
         <div class="_ctheme_top_bar">
             <?php
-            // load top bar
             include join_path(__DIR__, 'components/top_bar.php')
             ?>
         </div>
@@ -191,5 +187,3 @@ $page_class = 'page-' . preg_replace('/[^a-zA-Z0-9_-]/', '', (string) Configurat
         
     </div>
 </div>
-
-
