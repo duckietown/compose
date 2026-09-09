@@ -33,6 +33,7 @@ foreach ($packages as $package) {
 }
 ?>
 
+<div class="dt-page">
 <h4>Personal Information</h4>
 <nav class="navbar navbar-default" role="navigation" style="margin-bottom:36px">
     <div class="container-fluid" style="padding-left:0; padding-right:0">
@@ -84,4 +85,5 @@ foreach ($profile_addon_files_per_pkg as $pkg_id => $profile_addon_files) {
     }
 }
 ?>
+</div>
 

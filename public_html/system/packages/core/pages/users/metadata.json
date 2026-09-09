@@ -2,7 +2,7 @@
     "name" : "Users",
     "package" : "core",
     "menu_entry" : {
-        "order" : 3,
+        "order" : 7,
         "icon" : {
             "class" : "fa",
             "name" : "group"

@@ -9,40 +9,31 @@ use \system\classes\Core;
 ?>
 
 <section>
-  <div class="container login">
-    <div class="row" style="width:480px; margin:auto">
-      <div class="center span4 well">
-        <div class="col-md-6">
-          <h3 style="margin-top:0"><strong><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> &nbsp;Sign in</strong></h3>
-        </div>
-        <div class="col-md-6">
-          <?php
-          $logo = Core::getSetting('logo_black');
-          $base = Configuration::$BASE;
-          $logo = str_replace('~', $base, str_replace('~/', '~', $logo));
-          ?>
-          <img id="loginLogo" src="<?php echo $logo ?>"/>
-        </div>
-        <br>
-        <br>
-        <br>
-        <legend></legend>
+  <div class="dt-login">
+    <div class="dt-login-card">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;">
+        <h3><i class="fa fa-lock" aria-hidden="true"></i> Sign in</h3>
+        <?php
+          $logo = Core::getSetting('logo_black', 'core', '');
+          if (!is_string($logo) || strlen(trim($logo)) === 0) {
+              $logo = Core::getSetting('logo_white', 'core', '');
+          }
+          if (!is_string($logo)) {
+              $logo = '';
+          }
+          $logo = str_replace('~', Configuration::$BASE, str_replace('~/', '~', $logo));
+          if (strlen(trim($logo)) > 0) {
+        ?>
+        <img id="loginLogo" src="<?php echo htmlspecialchars($logo, ENT_QUOTES, 'UTF-8') ?>" alt="">
+        <?php } ?>
+      </div>
+      <p class="dt-login-lead">Paste your Duckietown token to sign in.</p>
 
-        <div class="text-center" style="padding:25px 0 35px 0">
+        <div class="text-center">
           <?php
           $login_enabled = Core::getSetting('login_enabled', 'core');
           if( $login_enabled ){
-            ?>
-            <div id="g-signin" class="text-left" style="margin-left:100px;"></div>
-            <!--  -->
-            <img id="signin-loader" src="<?php echo Configuration::$BASE ?>images/loading_blue.gif" style="display:none; width:32px; height:32px; margin-top:10px">
-            <?php
-            // get list of login plugins files
             $login_addon_files_per_pkg = Core::getPackagesModules('login', null);
-            if(count($login_addon_files_per_pkg) > 0){
-              echo '<legend style="width: 100px; margin: 20px auto"></legend>';
-            }
-            // render add-ons
             foreach ($login_addon_files_per_pkg as $pkg_id => $login_addon_files) {
               require_once $login_addon_files[0];
             }
@@ -53,17 +44,11 @@ use \system\classes\Core;
           }
           ?>
         </div>
-
-        <legend style="margin-top:4px"></legend>
-
-        <p style="color:grey">
-          <?php echo Core::getSiteName() ?> uses the <a href="https://developers.google.com/identity/">Google Sign-In API</a>
-          authentication service.
-        </p>
-      </div>
     </div>
   </div>
-  <p class="text-center muted" style="color:grey; margin-top:-10px">&copy; Copyright <?php echo date("Y"); ?> - <?php echo Core::getSiteName() ?></p>
+  <p class="dt-login-copy">
+    &copy; Copyright <?php echo date("Y"); ?> - <?php echo htmlspecialchars((string) (Core::getSiteName() ?? ''), ENT_QUOTES, 'UTF-8') ?>
+  </p>
 </section>
 
 <script type="text/javascript">

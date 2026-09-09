@@ -169,7 +169,7 @@ function settings_api_tab(){
                                                             data-service="<?php echo $api_service ?>"
                                                             data-details="<?php echo $api_service_desc['details'] ?>"
                                                             >
-                                                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
                                                             &nbsp;Info
                                                         </button>
                                                         &nbsp;
@@ -177,7 +177,7 @@ function settings_api_tab(){
                                                         if( $api_service == 'api' ){
                                                             ?>
                                                             <span style="padding:0 28px">
-                                                                <span class="glyphicon glyphicon-ban-circle" aria-hidden="true" style="color:lightgray"></span>
+                                                                <i class="fa fa-ban" aria-hidden="true" style="color:var(--r-muted,#6b7280)"></i>
                                                             </span>
                                                             <?php
                                                         }elseif( $api_service_desc['enabled'] ){
@@ -186,7 +186,7 @@ function settings_api_tab(){
                                                                 data-version="<?php echo $api_version ?>"
                                                                 data-service="<?php echo $api_service ?>"
                                                                 >
-                                                                <span class="glyphicon glyphicon-pause" aria-hidden="true"></span>
+                                                                <i class="fa fa-pause" aria-hidden="true"></i>
                                                                 &nbsp;Disable
                                                             </button>
                                                             <?php
@@ -197,7 +197,7 @@ function settings_api_tab(){
                                                                 data-version="<?php echo $api_version ?>"
                                                                 data-service="<?php echo $api_service ?>"
                                                                 >
-                                                                <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
+                                                                <i class="fa fa-play" aria-hidden="true"></i>
                                                                 &nbsp;Enable
                                                             </button>
                                                             <?php
@@ -239,7 +239,7 @@ function settings_api_tab(){
                                                                 data-action="<?php echo $api_action ?>"
                                                                 data-details="<?php echo $api_action_desc['details'] ?>"
                                                                 >
-                                                                <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                                                                <i class="fa fa-info-circle" aria-hidden="true"></i>
                                                                 &nbsp;Info
                                                             </button>
                                                             &nbsp;
@@ -247,7 +247,7 @@ function settings_api_tab(){
                                                             if( $api_service == 'api' && in_array($api_action, ['service_enable', 'action_enable']) ){
                                                                 ?>
                                                                 <span style="padding:0 28px">
-                                                                    <span class="glyphicon glyphicon-ban-circle" aria-hidden="true" style="color:lightgray"></span>
+                                                                    <i class="fa fa-ban" aria-hidden="true" style="color:var(--r-muted,#6b7280)"></i>
                                                                 </span>
                                                                 <?php
                                                             }elseif($api_action_desc['enabled']){
@@ -257,7 +257,7 @@ function settings_api_tab(){
                                                                     data-service="<?php echo $api_service ?>"
                                                                     data-action="<?php echo $api_action ?>"
                                                                     >
-                                                                    <span class="glyphicon glyphicon-pause" aria-hidden="true"></span>
+                                                                    <i class="fa fa-pause" aria-hidden="true"></i>
                                                                     &nbsp;Disable
                                                                 </button>
                                                                 <?php
@@ -269,7 +269,7 @@ function settings_api_tab(){
                                                                     data-service="<?php echo $api_service ?>"
                                                                     data-action="<?php echo $api_action ?>"
                                                                     >
-                                                                    <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
+                                                                    <i class="fa fa-play" aria-hidden="true"></i>
                                                                     &nbsp;Enable
                                                                 </button>
                                                                 <?php

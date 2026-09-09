@@ -42,9 +42,12 @@ function settings_theme_tab($args, $settings_tab_id) {
     $form = new SmartForm($theme_schema, $theme_cfg);
     $form->render();
     ?>
-    <button type="button" class="btn btn-success" id="theme-configuration-save-button" style="float:right">
-        <span class="glyphicon glyphicon-floppy-open" aria-hidden="true"></span>Save and Apply
+    <div class="dt-form-actions">
+    <button type="button" class="robot-btn robot-btn-primary" id="theme-configuration-save-button">
+        <i class="fa fa-check" aria-hidden="true"></i>
+        Save and Apply
     </button>
+    </div>
     
     <script type="text/javascript">
     	$('#theme-configuration-save-button').on('click', function(){

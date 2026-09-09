@@ -43,18 +43,18 @@ function settings_packages_tab(){
                             if( $pkg['enabled'] ){
                                 ?>
                                 <button type="button" class="btn btn-xs btn-warning package-disable-button" data-package="<?php echo $pkg_id ?>">
-                                    <span class="glyphicon glyphicon-pause" aria-hidden="true"></span>&nbsp;Disable
+                                    <i class="fa fa-pause" aria-hidden="true"></i>&nbsp;Disable
                                 </button>
                                 <?php
                             }else{
                                 ?>
                                 <button type="button" class="btn btn-xs btn-success package-enable-button" data-package="<?php echo $pkg_id ?>">
-                                    <span class="glyphicon glyphicon-play" aria-hidden="true"></span>&nbsp;Enable
+                                    <i class="fa fa-play" aria-hidden="true"></i>&nbsp;Enable
                                 </button>
                                 <?php
                             }
                         }else{
-                            echo '<span class="glyphicon glyphicon-ban-circle" aria-hidden="true" style="margin-top:2px; color:grey;"></span>';
+                            echo '<i class="fa fa-ban" aria-hidden="true" style="color:var(--r-muted,#6b7280)"></i>';
                         }
                         ?>
                     </td>

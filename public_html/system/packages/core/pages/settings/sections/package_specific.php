@@ -31,8 +31,8 @@ function settings_custom_package_tab( $args, $settings_tab_id ){
         if (!$package_settings->is_writable()) {
             ?>
             <div class="alert alert-warning" role="alert">
-                <span class="glyphicon glyphicon-file" aria-hidden="true" style="color:#ff9818"></span>
-                <span style="color:#ff9818">WARNING!</span>&nbsp;
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                <span>WARNING!</span>&nbsp;
                 The server does not have the rights to edit the configuration file.
                 Any change will be lost.
             </div>
@@ -44,7 +44,9 @@ function settings_custom_package_tab( $args, $settings_tab_id ){
     <?php
     $config_schema = $package_settings->getSchema();
     $config_values = $package_settings->asArray(true);
-    
+    $developer_mode = booleanval(Core::getSetting('developer_mode', 'core', false));
+    $hide_advanced_core = ($package_name === 'core' && !$developer_mode);
+
     // fill in enums
     $w = function ($path, &$_, &$schema) use (&$config_schema) {
         $fcn_path = sprintf('.%s.%s', '__form__', 'enum_filler_fcn');
@@ -67,16 +69,29 @@ function settings_custom_package_tab( $args, $settings_tab_id ){
         }
     };
     $config_schema->walk($w, $config_values);
-    
-    // create and render form from schema and values
-    $form = new SmartForm($config_schema, $config_values);
+
+    // Pass a plain array into SmartForm. Operators keep Maintenance mode and
+    // the Developer mode toggle; everything under Developer mode is omitted
+    // from the schema so ComposeForm never renders it. configuration/set only
+    // writes posted keys, so Save does not wipe website name / logos / etc.
+    $schema_for_form = $config_schema->asArray();
+    if ($hide_advanced_core && isset($schema_for_form['_data']) && is_array($schema_for_form['_data'])) {
+        $operator_keys = ['maintenance_mode' => true, 'developer_mode' => true];
+        $schema_for_form['_data'] = array_intersect_key($schema_for_form['_data'], $operator_keys);
+        if (is_array($config_values)) {
+            $config_values = array_intersect_key($config_values, $operator_keys);
+        }
+    }
+
+    $form = new SmartForm($schema_for_form, $config_values);
     $form->render();
     ?>
-    <br/>
-    <button type="button" class="btn btn-success" id="<?php echo $package_name ?>-settings-save-button" style="float:right">
-        <span class="glyphicon glyphicon-floppy-open" aria-hidden="true"></span>
+    <div class="dt-form-actions">
+    <button type="button" class="robot-btn robot-btn-primary" id="<?php echo $package_name ?>-settings-save-button">
+        <i class="fa fa-check" aria-hidden="true"></i>
         Save and Apply
     </button>
+    </div>
     
     <script type="text/javascript">
     	$('#<?php echo $package_name ?>-settings-save-button').on('click', function(){
@@ -107,6 +122,23 @@ function settings_custom_package_tab( $args, $settings_tab_id ){
                 let unsaved_mark_id = "#<?php echo $settings_tab_id ?>_unsaved_changes_mark";
                 $(unsaved_mark_id).css('display', '');
             });
+            <?php if ($hide_advanced_core) { ?>
+            (function hideRowsUnderDeveloperMode(){
+                var root = document.getElementById("<?php echo $form->formID ?>");
+                if (!root) return;
+                root.setAttribute('data-operator-dashboard', '1');
+                var hide = false;
+                $(root).find('.compose-form-atom').each(function(){
+                    var title = $(this).find('.input-group-addon.text-bold').first().text().trim().toLowerCase();
+                    if (hide) {
+                        this.style.setProperty('display', 'none', 'important');
+                    }
+                    if (title === 'developer mode') {
+                        hide = true;
+                    }
+                });
+            })();
+            <?php } ?>
         });
     </script>
 
