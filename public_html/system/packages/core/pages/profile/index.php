@@ -42,7 +42,7 @@ foreach ($packages as $package) {
 
             <table style="width:100%">
                 <tr>
-                    <td class="col-md-3 text-center" style="border-right:1px solid lightgray">
+                    <td class="col-md-3 text-center" style="border-right:1px solid var(--r-border, lightgray)">
                         <h3 style="margin:0">
                             <div class="text-center col-md-12" id="profile_page_avatar">
                                 <?php

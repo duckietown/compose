@@ -257,7 +257,7 @@ class TableViewer {
 						<div class="collapse navbar-collapse navbar-right" style="padding-right:0; padding-left:5px">
 
 							<ul class="nav navbar-nav navbar-left">
-								<li style="border-left:1px solid #ddd"><a style="padding-right:5px"><strong>Filter:</strong></a></li>
+								<li style="border-left:1px solid var(--r-border, #ddd)"><a style="padding-right:5px"><strong>Filter:</strong></a></li>
 							</ul>
 
 							<?php
@@ -352,7 +352,7 @@ class TableViewer {
 				</div>
 			</nav>
 
-			<div class="col-md-12" style="border-bottom:1px solid #efefef">
+			<div class="col-md-12" style="border-bottom:1px solid var(--r-border, #efefef)">
 				<table style="float:right">
 					<tr>
 						<td>
@@ -485,7 +485,7 @@ class TableViewer {
 						if( $actions_column_enabled ){
 							?>
 							<td class="text-center">
-								<div style="margin:auto">
+								<div class="dt-table-actions">
 									<?php
 									foreach( $table['actions'] as $action ){
 										if( is_string($action) ) continue;
@@ -539,21 +539,17 @@ class TableViewer {
 												echo $action['function']['custom_html'];
 											}
 											?>
-											style="height: 24px; padding-top: 2px;
 											<?php
 											if( isset($action['condition']) && !in_array($record[$action['condition']['field']], $action['condition']['values']) ){
-												echo "background-image:none; background-color:rgb(189, 188, 188); border:1px solid; ";
+												echo 'style="background-image:none; background-color:rgb(189, 188, 188); border:1px solid;"';
 											}
 											?>
-												"
 											>
 											<span
 												class="glyphicon glyphicon-<?php echo $action['glyphicon'] ?>"
 												aria-hidden="true"
 												<?php echo ( (isset($action['color']))? 'style="color:'.$action['color'].'"' : '' ) ?>
-												>
-											</span>
-											<?php echo ( (isset($action['text']))? '&nbsp;'.$action['text'] : '' ) ?>
+												></span><?php if (isset($action['text'])) { echo '<span>'.$action['text'].'</span>'; } ?>
 										</button>
 									<?php
 									}
@@ -668,7 +664,7 @@ class TableViewer {
 										</td>
 
 										<td style="width:5%"></td>
-										<td style="border-left:1px solid #ddd; width:5%"></td>
+										<td style="border-left:1px solid var(--r-border, #ddd); width:5%"></td>
 
 										<td style="width:40%">
 											<div style="vertical-align:top;">

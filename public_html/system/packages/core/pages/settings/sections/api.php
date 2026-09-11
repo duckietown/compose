@@ -26,7 +26,7 @@ use \system\classes\RESTfulAPI;
 .settings_api_list .input-group .form-control .entity-type{
     font-weight: normal;
     font-family: monospace;
-    color: #b3b3b3;
+    color: var(--r-muted, #b3b3b3);
     font-size: 10pt;
 }
 
@@ -59,7 +59,7 @@ use \system\classes\RESTfulAPI;
 
 #settings_api_version_selector{
     padding-bottom: 20px;
-    border-bottom: 1px solid lightgray;
+    border-bottom: 1px solid var(--r-border, lightgray);
 }
 </style>
 

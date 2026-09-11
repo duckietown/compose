@@ -13,12 +13,12 @@ use \system\classes\Core;
 
 <div class="col-md-6 text-right">
 	<br/><br/><br/><br/>
-	<h1 class="text-center" style="font-size:120px; color:#28a4c9">
+	<h1 class="text-center" style="font-size:120px; color:var(--r-fill, #28a4c9)">
 		<span class="fa fa-bug" aria-hidden="true"></span> 404
 	</h1>
 </div>
 
-<div class="col-md-6" style="border-left:1px solid lightgray; padding-left:60px">
+<div class="col-md-6" style="border-left:1px solid var(--r-border, lightgray); padding-left:60px">
 	<h1 style="font-size:70px; margin-bottom:0">Oops!</h1>
 	<h3 style="margin-top:0; padding-left:4px">Something is missing here!</h3>
 

@@ -41,20 +41,34 @@ $main = $modes[$section_sel]['main'];
 $section = $modes[$section_sel]['section'];
 
 // create title
-$title_fmt = '<%s href="%s" class="%s" style="float:%s">%s</%s>';
 $mains = [
     'users' => ['position' => 'left', 'url' => Core::getURL('users')],
-    '/' => null,
+    '/' => ['position' => 'center', 'url' => ''],
     'groups' => ['position' => 'right', 'url' => Core::getURL('users', 'groups')]
 ];
 ?>
 <div class="dt-page">
-<h2 class="page-title-static text-center" style="display: block">
+<h2 class="page-title-static">
     <?php
     foreach ($mains as $mkey => $mdata) {
-        $type = ($main == $mkey || is_null($mdata)) ? 'span' : 'a';
-        $class = ($main == $mkey) ? 'text-bold' : '';
-        printf($title_fmt, $type, $mdata['url'], $class, $mdata['position'], ucfirst($mkey), $type);
+        $is_current = ($main == $mkey || $mdata['position'] === 'center');
+        $type = $is_current ? 'span' : 'a';
+        $class = trim(
+            ($main == $mkey ? 'text-bold ' : '') .
+            'page-title-side page-title-' . $mdata['position']
+        );
+        $label = htmlspecialchars(ucfirst($mkey), ENT_QUOTES, 'UTF-8');
+        $class_attr = htmlspecialchars($class, ENT_QUOTES, 'UTF-8');
+        if ($type === 'a') {
+            printf(
+                '<a href="%s" class="%s">%s</a>',
+                htmlspecialchars($mdata['url'], ENT_QUOTES, 'UTF-8'),
+                $class_attr,
+                $label
+            );
+        } else {
+            printf('<span class="%s">%s</span>', $class_attr, $label);
+        }
     }
     ?>
 </h2>

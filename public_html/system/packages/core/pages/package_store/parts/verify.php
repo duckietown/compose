@@ -117,11 +117,11 @@ foreach ($tasks as $task) {
                         $package_metadata = $installed_packages[$package_id];
                         $package_name = isset($package_metadata['name']) ? $package_metadata['name'] : 'Package';
                         echo sprintf(
-                            '<h5>&bullet; %s (<span class="mono" style="color:grey">%s, %s</span>)</h5>',
+                            '<h5>&bullet; %s (<span class="mono" style="color:var(--r-muted, grey)">%s, %s</span>)</h5>',
                             $package_name,
                             $package_id,
                             sprintf(
-                                '<span class="fa fa-tag" style="color:black" aria-hidden="true"></span> %s',
+                                '<span class="fa fa-tag" aria-hidden="true"></span> %s',
                                 $package_metadata['codebase']['head_tag']
                             )
                         );

@@ -7,6 +7,24 @@
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+    <script type="text/javascript">
+        (function () {
+            try {
+                var t = localStorage.getItem('dt-theme');
+                if (t !== 'dark' && t !== 'light') {
+                    t = 'light';
+                }
+                document.documentElement.setAttribute('data-dt-theme', t);
+            } catch (e) {
+                document.documentElement.setAttribute('data-dt-theme', 'light');
+            }
+        })();
+    </script>
+    <style type="text/css">
+        html { background: #e4e7ef; }
+        html[data-dt-theme="dark"] { background: #121722; }
+        html[data-dt-theme="dark"] body { background: #121722; color: #f5f7fb; }
+    </style>
     <?php
     // load constants
     require_once 'system/environment.php';
@@ -254,7 +272,7 @@
     <![endif]-->
 </head>
 
-<body <?php echo((Configuration::$PAGE == 'error') ? 'style="background-color:white"' : '') ?>>
+<body>
 
     <!-- Load JS Configuration class -->
     <?php

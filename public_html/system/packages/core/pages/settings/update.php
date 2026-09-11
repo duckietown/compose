@@ -17,7 +17,7 @@ if (isset($_GET['version']) && StringType::isValid($_GET['version'], StringType:
 
 <div style="width:100%; margin:auto">
 
-	<table style="width:100%; border-bottom:1px solid #ddd; margin-bottom:32px">
+	<table style="width:100%; border-bottom:1px solid var(--r-border, #ddd); margin-bottom:32px">
 
 		<tr>
 			<td style="width:100%">

@@ -39,19 +39,57 @@ if ($logged_in) {
 }
 ?>
 </head>
-<body style="margin:0;background:#fff;color:#111827;font:13px/1.4 -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;">
-<div style="max-width:420px;margin:48px auto;padding:24px;border:1px solid #e6e8eb;border-radius:10px;text-align:center;">
+<body class="dt-embed-denied">
+<style type="text/css">
+.dt-embed-denied {
+    margin: 0;
+    font: 13px/1.4 -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
+    background: #e4e7ef;
+    color: #1a1d26;
+}
+html[data-dt-theme="dark"] .dt-embed-denied {
+    background: #121722;
+    color: #f5f7fb;
+}
+.dt-embed-denied-card {
+    max-width: 420px;
+    margin: 48px auto;
+    padding: 24px;
+    border: 1px solid #dde1ea;
+    border-radius: 10px;
+    text-align: center;
+    background: #ffffff;
+}
+html[data-dt-theme="dark"] .dt-embed-denied-card {
+    background: #232a39;
+    border-color: #3e475c;
+}
+.dt-embed-denied-card p.muted { color: #6b7280; }
+html[data-dt-theme="dark"] .dt-embed-denied-card p.muted { color: #c5cddc; }
+.dt-embed-denied-card a.cta {
+    display: inline-block;
+    padding: 8px 14px;
+    background: #2c5686;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+}
+html[data-dt-theme="dark"] .dt-embed-denied-card a.cta { background: #7aa6d4; color: #121722; }
+.dt-embed-denied-card svg { stroke: #2c5686; }
+html[data-dt-theme="dark"] .dt-embed-denied-card svg { stroke: #7aa6d4; }
+</style>
+<div class="dt-embed-denied-card">
     <p style="margin:0 0 8px;" aria-hidden="true">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2c5686" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="4" y="11" width="16" height="11" rx="2"></rect>
             <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
         </svg>
     </p>
     <h3 style="margin:0 0 8px;font-size:18px;font-weight:600;"><?php echo htmlspecialchars($title) ?></h3>
-    <p style="margin:0 0 16px;color:#6b7280;"><?php echo htmlspecialchars($body) ?></p>
+    <p class="muted" style="margin:0 0 16px;"><?php echo htmlspecialchars($body) ?></p>
     <?php if ($show_signin) { ?>
-        <a href="<?php echo htmlspecialchars($login_url) ?>" target="_top"
-           style="display:inline-block;padding:8px 14px;background:#2c5686;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;">
+        <a class="cta" href="<?php echo htmlspecialchars($login_url) ?>" target="_top">
             Sign in
         </a>
     <?php } ?>

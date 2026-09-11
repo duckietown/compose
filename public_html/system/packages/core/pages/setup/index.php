@@ -73,7 +73,7 @@ for ($i = 1; $i <= $num_steps; $i++) {
 </style>
 
 
-<table style="width:100%; border-bottom:1px solid #ddd; margin:20px 0 20px 0">
+<table style="width:100%; border-bottom:1px solid var(--r-border, #ddd); margin:20px 0 20px 0">
 <tr>
   <td style="width:100%">
     <h1 class="text-center">
@@ -98,7 +98,7 @@ function _compose_first_setup_step_in_progress(){
 for ($step_no = 1; $step_no <= $num_steps; $step_no++) {
 $collapse = $step_no == $cur_step? 'in' : '';
 $icon = ($step_no == $cur_step)? 'square' : (($step_no < $cur_step)? 'check-square' : 'square-o');
-$color = ($step_no < $cur_step)? 'green' : 'black';
+$color = ($step_no < $cur_step)? 'var(--r-ok)' : 'var(--r-muted)';
 $panel_style = ($step_no < $cur_step)? 'panel-success' : 'panel-default';
 // ---
 ?>

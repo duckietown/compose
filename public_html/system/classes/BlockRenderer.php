@@ -63,7 +63,7 @@ class BlockRenderer{
                   <a class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
                   </a>
-                  <ul class="dropdown-menu" style="color:black">
+                  <ul class="dropdown-menu">
 
                     <?php
                     $options = $this->mission_control->get_available_shapes();

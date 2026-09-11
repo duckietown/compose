@@ -30,11 +30,11 @@
 }
 
 .compose-smart-form .help-block-details {
-    color: #9c9c9c;
+    color: var(--r-muted, #9c9c9c);
 }
 
 .compose-smart-form .help-block-default {
-    color: #9c9c9c;
+    color: var(--r-muted, #9c9c9c);
     float: right;
 }
 .compose-smart-form .help-block-default span{
@@ -56,8 +56,8 @@
 .compose-form-group .compose-form-group-content {
     margin: 10px 0 10px 20px;
     padding: 6px 0 0 16px;
-    border-left: 1px solid lightgrey;
-    border-bottom: 1px solid lightgrey;
+    border-left: 1px solid var(--r-border, lightgrey);
+    border-bottom: 1px solid var(--r-border, lightgrey);
     border-radius: 0 10px;
 }
 

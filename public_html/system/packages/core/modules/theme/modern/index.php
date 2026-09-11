@@ -32,20 +32,22 @@ if (is_file($ds_js_path)) {
 <style type="text/css">
     body {
         margin-bottom: 0;
-        background: #ececec;
+        background: var(--r-canvas, #e4e7ef);
         background-image: none;
+        color: var(--r-text, #1a1d26);
     }
     
     ._ctheme_body {
         height: 100vh;
         padding: <?php echo Configuration::$THEME_CONFIG['dimensions']['page_padding'] ?>px;
+        background: var(--r-canvas, #e4e7ef);
     }
     
     ._ctheme_page {
         height: 100%;
         border-radius: <?php echo Configuration::$THEME_CONFIG['dimensions']['page_radius'] ?>px;
-        border: 1px solid #d0d0d0;
-        background-color: white;
+        border: 0;
+        background-color: var(--r-canvas, #e4e7ef);
         overflow: hidden;
         box-shadow: none;
     }
@@ -114,7 +116,7 @@ if (is_file($ds_js_path)) {
     ._ctheme_body.is-embed {
         padding: 0;
         height: 100vh;
-        background: #fff;
+        background: var(--r-canvas, #e4e7ef);
     }
     ._ctheme_page.is-embed {
         border: 0;
@@ -137,14 +139,13 @@ if (is_file($ds_js_path)) {
     
     /* Track */
     ::-webkit-scrollbar-track {
-      background: #f0f0f0;
+      background: var(--r-track, #e8ebf1);
       border-radius: 0;
       box-shadow: none;
     }
     
-    /* Handle */
     ::-webkit-scrollbar-thumb {
-      background: <?php echo $_THEME_COLOR_3->get_hex() ?>;
+      background: var(--r-muted, #6b7280);
       border-radius: 4px;
     }
     

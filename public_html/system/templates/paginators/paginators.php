@@ -2,7 +2,7 @@
 
 function buildPaginator( $action, $available_pages, $current_page ){
 
-	echo '<li ' . (( $current_page <= 1 )? 'class="disabled"' : '') . '><a href="' . (( $current_page > 1 )? $action.'page='.($current_page-1) : '#') . '" style="border-right:2px solid #ddd"><span aria-hidden="true">&laquo;</span><span class="sr-only">Precedente</span></a></li>';
+	echo '<li ' . (( $current_page <= 1 )? 'class="disabled"' : '') . '><a href="' . (( $current_page > 1 )? $action.'page='.($current_page-1) : '#') . '" style="border-right:2px solid var(--r-border, #ddd)"><span aria-hidden="true">&laquo;</span><span class="sr-only">Precedente</span></a></li>';
 
 
 	if( $available_pages <= 5 ){
@@ -39,7 +39,7 @@ function buildPaginator( $action, $available_pages, $current_page ){
 		}
 	}
 
-	echo '<li ' . (( $current_page >= $available_pages )? 'class="disabled"' : '') . '><a href="' . (( $current_page < $available_pages )? $action.'page='.($current_page+1) : '#') . '" style="border-left:2px solid #ddd"><span aria-hidden="true">&raquo;</span><span class="sr-only">Successiva</span></a></li>';
+	echo '<li ' . (( $current_page >= $available_pages )? 'class="disabled"' : '') . '><a href="' . (( $current_page < $available_pages )? $action.'page='.($current_page+1) : '#') . '" style="border-left:2px solid var(--r-border, #ddd)"><span aria-hidden="true">&raquo;</span><span class="sr-only">Successiva</span></a></li>';
 
 }
 

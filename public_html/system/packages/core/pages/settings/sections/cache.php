@@ -22,7 +22,7 @@ function settings_cache_tab(){
     <style type="text/css">
     .cache_stats_box{
       color: #4bc0c0;
-      border: 1px solid lightgray;
+      border: 1px solid var(--r-border, lightgray);
       margin: 10% 15%;
       padding: 10% 0;
     }

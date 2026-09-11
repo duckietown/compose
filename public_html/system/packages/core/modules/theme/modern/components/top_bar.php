@@ -190,13 +190,13 @@ function _ctheme_nav_link_class($page, $current_page_id) {
         left: 0;
         right: 0;
         height: <?php echo $_TOPBAR_H ?>px !important;
-        color: #1e1e1e;
+        color: var(--r-text, #1a1d26);
         padding: 0 16px;
         font-size: 14px;
         font-weight: 500;
         letter-spacing: -0.01em;
-        border-bottom: 1px solid #e0e0e0;
-        background: #ffffff;
+        border-bottom: 1px solid var(--r-border, #dde1ea);
+        background: var(--r-chrome, #ffffff);
         box-shadow: none;
         display: flex;
         align-items: center;
@@ -209,9 +209,14 @@ function _ctheme_nav_link_class($page, $current_page_id) {
         border-bottom-color: #ffb296;
         box-shadow: inset 0 3px 0 #ffb296;
     }
+    html[data-dt-theme="dark"] ._ctheme_page ._ctheme_top_bar.is-developer-mode {
+        background: #2a241f;
+        border-bottom-color: #c47a5a;
+        box-shadow: inset 0 3px 0 #c47a5a;
+    }
 
     ._ctheme_page ._ctheme_top_bar a {
-        color: #444;
+        color: var(--r-muted, #6b7280);
     }
 
     ._ctheme_page a:hover {
@@ -241,13 +246,13 @@ function _ctheme_nav_link_class($page, $current_page_id) {
         gap: 10px;
         min-width: 0;
         flex: 0 0 auto;
-        color: #1e1e1e;
+        color: var(--r-text, #1a1d26);
         text-decoration: none;
     }
 
     ._ctheme_brand:hover,
     ._ctheme_brand:focus {
-        color: #1e1e1e;
+        color: var(--r-text, #1a1d26);
         text-decoration: none;
         opacity: 0.85;
     }
@@ -272,7 +277,7 @@ function _ctheme_nav_link_class($page, $current_page_id) {
     ._ctheme_brand_title {
         font-size: 14px;
         font-weight: 700;
-        color: #1e1e1e;
+        color: var(--r-text, #1a1d26);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -281,7 +286,7 @@ function _ctheme_nav_link_class($page, $current_page_id) {
     ._ctheme_brand_subtitle {
         font-size: 10px;
         font-weight: 400;
-        color: #888;
+        color: var(--r-muted, #6b7280);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -303,20 +308,20 @@ function _ctheme_nav_link_class($page, $current_page_id) {
         border-radius: 6px;
         font-size: 13px;
         font-weight: 600;
-        color: #444;
+        color: var(--r-muted, #6b7280);
         white-space: nowrap;
     }
 
     ._ctheme_nav_link:hover,
     ._ctheme_nav_link:focus {
-        color: #1e1e1e;
-        background: #f5f5f5;
+        color: var(--r-text, #1a1d26);
+        background: var(--r-hover, #eef1f7);
         text-decoration: none;
     }
 
     ._ctheme_nav_link.active {
-        color: #1e1e1e;
-        background: #f0f0f0;
+        color: var(--r-text, #1a1d26);
+        background: var(--r-surface, #f4f6fa);
     }
 
     ._ctheme_nav_link .fa,
@@ -328,12 +333,12 @@ function _ctheme_nav_link_class($page, $current_page_id) {
     ._ctheme_page_title {
         font-size: 13px;
         font-weight: 600;
-        color: #888;
+        color: var(--r-muted, #6b7280);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         padding-left: 8px;
-        border-left: 1px solid #e6e6e6;
+        border-left: 1px solid var(--r-border, #dde1ea);
         line-height: 1.2;
     }
 
@@ -382,7 +387,7 @@ function _ctheme_nav_link_class($page, $current_page_id) {
         padding: 0 8px;
         border-radius: 6px;
         font-size: 14px;
-        color: #555;
+        color: var(--r-muted, #6b7280);
         opacity: 1;
     }
 
@@ -392,15 +397,15 @@ function _ctheme_nav_link_class($page, $current_page_id) {
     ._ctheme_icon_btn.open,
     ._ctheme_user_toggle:hover,
     ._ctheme_user_toggle:focus {
-        background: #f5f5f5;
-        color: #1e1e1e;
+        background: var(--r-hover, #eef1f7);
+        color: var(--r-text, #1a1d26);
         text-decoration: none;
         opacity: 1;
     }
 
     ._ctheme_icon_btn.active {
-        background: #f0f0f0;
-        color: #1e1e1e;
+        background: var(--r-surface, #f4f6fa);
+        color: var(--r-text, #1a1d26);
     }
 
     ._ctheme_user_toggle {
@@ -410,7 +415,7 @@ function _ctheme_nav_link_class($page, $current_page_id) {
         height: 32px;
         padding: 0 8px 0 4px;
         border-radius: 999px;
-        color: #1e1e1e;
+        color: var(--r-text, #1a1d26);
         font-size: 12px;
         font-weight: 600;
     }
@@ -422,6 +427,9 @@ function _ctheme_nav_link_class($page, $current_page_id) {
         border: 1px solid rgba(0,0,0,0.12);
         object-fit: cover;
     }
+    html[data-dt-theme="dark"] ._ctheme_user_toggle img {
+        border-color: rgba(255,255,255,0.18);
+    }
 
     ._ctheme_user_toggle .caret {
         margin-left: 0;
@@ -429,9 +437,10 @@ function _ctheme_nav_link_class($page, $current_page_id) {
 
     ._ctheme_top_bar .dropdown-menu {
         margin-top: 8px;
-        border: 1px solid #e0e0e0;
+        border: 1px solid var(--r-border, #dde1ea);
         border-radius: 8px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        box-shadow: var(--r-shadow, 0 8px 24px rgba(0,0,0,0.08));
+        background: var(--r-card, #ffffff);
         min-width: 200px;
         padding: 6px 0;
         z-index: 50;
@@ -441,27 +450,27 @@ function _ctheme_nav_link_class($page, $current_page_id) {
         padding: 8px 14px;
         font-size: 13px;
         font-weight: 500;
-        color: #333;
+        color: var(--r-text, #1a1d26);
     }
 
     ._ctheme_top_bar .dropdown-menu > li > a:hover,
     ._ctheme_top_bar .dropdown-menu > li > a:focus {
-        background: #f5f5f5;
-        color: #1e1e1e;
+        background: var(--r-hover, #eef1f7);
+        color: var(--r-text, #1a1d26);
     }
 
     ._ctheme_top_bar .dropdown-menu .dropdown-header {
         padding: 8px 14px 4px;
         font-size: 11px;
         font-weight: 600;
-        color: #888;
+        color: var(--r-muted, #6b7280);
         text-transform: none;
     }
 
     ._ctheme_dropdown_foot {
         padding: 6px 14px 2px;
         font-size: 10px;
-        color: #999;
+        color: var(--r-muted, #6b7280);
     }
 
     ._ctheme_nav_overflow {
@@ -503,6 +512,22 @@ function _ctheme_nav_link_class($page, $current_page_id) {
         ._ctheme_more_menu {
             display: none !important;
         }
+    }
+
+    ._ctheme_theme_icon_dark {
+        display: none;
+    }
+    html[data-dt-theme="dark"] ._ctheme_theme_icon_light {
+        display: none;
+    }
+    html[data-dt-theme="dark"] ._ctheme_theme_icon_dark {
+        display: inline;
+    }
+    ._ctheme_theme_toggle ._ctheme_theme_icon_light {
+        color: #d97706;
+    }
+    html[data-dt-theme="dark"] ._ctheme_theme_toggle ._ctheme_theme_icon_dark {
+        color: #c4b5e8;
     }
 </style>
 
@@ -607,6 +632,12 @@ function _ctheme_nav_link_class($page, $current_page_id) {
                 <span class="fa fa-cog" aria-hidden="true"></span>
             </a>
         <?php } ?>
+
+        <a class="_ctheme_icon_btn _ctheme_theme_toggle" href="#" id="dt-theme-toggle" role="button"
+           title="Switch to dark theme" aria-label="Switch to dark theme" aria-pressed="false">
+            <span class="fa fa-sun-o _ctheme_theme_icon_light" aria-hidden="true"></span>
+            <span class="fa fa-moon-o _ctheme_theme_icon_dark" aria-hidden="true"></span>
+        </a>
 
         <?php
         if (Core::isUserLoggedIn()) {

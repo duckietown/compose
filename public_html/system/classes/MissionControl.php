@@ -173,8 +173,9 @@ class MissionControl {
 
             .mission-control-item {
                 float: left;
-                background: #fff;
-                border: <?php echo $opts['block_border_thickness'] ?>px solid hsla(0, 0%, 80%, 0.5);
+                background: var(--r-card, #fff);
+                color: var(--r-text, inherit);
+                border: <?php echo $opts['block_border_thickness'] ?>px solid var(--r-border, hsla(0, 0%, 80%, 0.5));
             }
 
             <?php
