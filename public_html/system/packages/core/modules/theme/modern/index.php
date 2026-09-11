@@ -154,20 +154,13 @@ if (is_file($ds_js_path)) {
 <div class="_ctheme_body col-md-12<?php echo $is_embed ? ' is-embed' : '' ?>">
     <div class="_ctheme_page col-md-12 <?php echo htmlspecialchars($page_class) ?>">
         
-        <div class="_ctheme_top_bar">
+        <div class="_ctheme_top_bar<?php echo Core::getSetting('developer_mode') ? ' is-developer-mode' : '' ?>">
             <?php
             include join_path(__DIR__, 'components/top_bar.php')
             ?>
         </div>
         
         <div class="_ctheme_container">
-            
-            <?php
-            // Developer mode watermark
-            if (Core::getSetting('developer_mode')) {
-                include(join_path($CORE_PKG_DIR, 'modules/devel_watermark.php'));
-            }
-            ?>
             
             <div class="_ctheme_content">
 

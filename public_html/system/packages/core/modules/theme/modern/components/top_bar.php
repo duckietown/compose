@@ -204,6 +204,12 @@ function _ctheme_nav_link_class($page, $current_page_id) {
         overflow: visible;
     }
 
+    ._ctheme_page ._ctheme_top_bar.is-developer-mode {
+        background: #fff7f3;
+        border-bottom-color: #ffb296;
+        box-shadow: inset 0 3px 0 #ffb296;
+    }
+
     ._ctheme_page ._ctheme_top_bar a {
         color: #444;
     }
@@ -329,6 +335,34 @@ function _ctheme_nav_link_class($page, $current_page_id) {
         padding-left: 8px;
         border-left: 1px solid #e6e6e6;
         line-height: 1.2;
+    }
+
+    ._ctheme_dev_badge,
+    ._ctheme_page ._ctheme_top_bar a._ctheme_dev_badge {
+        display: inline-flex;
+        align-items: center;
+        height: 22px;
+        padding: 0 8px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #9a3412;
+        background: #ffedd5;
+        border: 1px solid #ffb296;
+        white-space: nowrap;
+        flex: 0 0 auto;
+        line-height: 1;
+        text-decoration: none;
+    }
+
+    ._ctheme_page ._ctheme_top_bar a._ctheme_dev_badge:hover,
+    ._ctheme_page ._ctheme_top_bar a._ctheme_dev_badge:focus {
+        color: #7c2d12;
+        background: #ffd7c2;
+        text-decoration: none;
+        opacity: 1;
     }
 
     ._ctheme_top_bar_right {
@@ -485,6 +519,18 @@ function _ctheme_nav_link_class($page, $current_page_id) {
                 <?php } ?>
             </span>
         </a>
+
+        <?php if ($developer_mode) { ?>
+            <?php if ($show_settings) { ?>
+                <a class="_ctheme_dev_badge"
+                   href="<?php echo _ctheme_esc(Core::getURL('settings')) ?>"
+                   title="Developer mode is on. Open Dashboard Settings to turn it off.">
+                    Developer mode
+                </a>
+            <?php } else { ?>
+                <span class="_ctheme_dev_badge" title="Developer mode is on">Developer mode</span>
+            <?php } ?>
+        <?php } ?>
 
         <nav class="_ctheme_nav_links" aria-label="Primary">
             <?php foreach ($primary_nav as $page) { ?>
