@@ -26,9 +26,12 @@ class MissionControl {
         if (isset($opts['show_header']) && !boolval($opts['show_header'])) {
             $header_h = 0;
         }
-        $scale_factor = min(max($opts['scale_factor'], 0.2), 2.0);
+        $resolution = max(1, intval($opts['resolution']));
+        $gutter = max(0, intval($opts['block_gutter']));
+        $border = max(0, intval($opts['block_border_thickness']));
+        $scale_factor = min(max(floatval($opts['scale_factor']), 0.2), 2.0);
         $block_size = $scale_factor * ($this->default_canvas_size -
-                ($opts['resolution'] - 1) * $opts['block_gutter']) / $opts['resolution'];
+                ($resolution - 1) * $gutter) / $resolution;
         // load all block renderers registered
         Core::loadPackagesModules('renderers/blocks');
         // get all block renderers registered
@@ -71,24 +74,54 @@ class MissionControl {
         </div>
 
         <script type="text/javascript">
-            $(document).ready(function () {
-                // create grid
-                let grid = $('#<?php echo $this->grid_id ?>').packery({
-                    itemSelector: '.mission-control-item',
-                    columnWidth: <?php echo $block_size ?>,
-                    gutter: <?php echo $opts['block_gutter'] ?>
-                });
-                <?php if($opts['draggable']){ ?>
-                    // make all grid-items draggable
+            (function () {
+                let gridSel = '#<?php echo $this->grid_id ?>';
+                let mcResolution = <?php echo $resolution ?>;
+                let mcGutter = <?php echo $gutter ?>;
+                let mcFitTimer = null;
+
+                function missionControlBlockSize() {
+                    let el = document.querySelector(gridSel);
+                    if (!el) return 0;
+                    let width = el.clientWidth;
+                    if (!width) return 0;
+                    let block = (width - (mcResolution - 1) * mcGutter) / mcResolution;
+                    if (block <= 0) return 0;
+                    el.style.setProperty('--mc-block', block + 'px');
+                    el.style.setProperty('--mc-gutter', mcGutter + 'px');
+                    return block;
+                }
+
+                function missionControlRelayout() {
+                    let block = missionControlBlockSize();
+                    let grid = $(gridSel);
+                    if (block && grid.data('packery')) {
+                        grid.packery('option', { columnWidth: block, gutter: mcGutter });
+                        grid.packery();
+                    }
+                }
+
+                $(document).ready(function () {
+                    let startBlock = missionControlBlockSize() || <?php echo json_encode($block_size) ?>;
+                    let grid = $(gridSel).packery({
+                        itemSelector: '.mission-control-item',
+                        columnWidth: startBlock,
+                        gutter: mcGutter
+                    });
+                    <?php if($opts['draggable']){ ?>
                     grid.find('.mission-control-item').each(function (i, gridItem) {
                         let draggie = new Draggabilly(gridItem);
-                        // bind drag events to Packery
                         grid.packery('bindDraggabillyEvents', draggie);
                     });
-                <?php
-                }
-                ?>
-            });
+                    <?php } ?>
+                    missionControlRelayout();
+                });
+
+                $(window).on('resize.mission-control-<?php echo $this->grid_id ?>', function () {
+                    clearTimeout(mcFitTimer);
+                    mcFitTimer = setTimeout(missionControlRelayout, 80);
+                });
+            })();
 
             function mission_control_switch_shape(box_id, new_rows, new_cols) {
                 // get box
@@ -160,8 +193,12 @@ class MissionControl {
             ?>
 
             #<?php echo $this->grid_id ?>{
+                --mc-block: <?php echo $block_size ?>px;
+                --mc-gutter: <?php echo $gutter ?>px;
                 background: inherit;
+                width: 100%;
                 max-width: 100%;
+                box-sizing: border-box;
             }
 
             /* clear fix */
@@ -173,56 +210,44 @@ class MissionControl {
 
             .mission-control-item {
                 float: left;
+                box-sizing: border-box;
                 background: var(--r-card, #fff);
                 color: var(--r-text, inherit);
-                border: <?php echo $opts['block_border_thickness'] ?>px solid var(--r-border, hsla(0, 0%, 80%, 0.5));
+                border: <?php echo $border ?>px solid var(--r-border, hsla(0, 0%, 80%, 0.5));
             }
 
             <?php
-            for ($i = 1; $i < $opts['resolution']+1; $i++) {
-              for ($j = 1; $j < $opts['resolution']+1; $j++) {
-                 $h = $i * $block_size + ($i - 1) * $opts['block_gutter'];
-                 $w = $j * $block_size + ($j - 1) * $opts['block_gutter'];
-
-                $header_w = $w - 2*$header_h - 2*$opts['block_border_thickness'];
-
+            for ($i = 1; $i < $resolution + 1; $i++) {
+              for ($j = 1; $j < $resolution + 1; $j++) {
+                $header_pad = 2 * $header_h + 2 * $border;
                 echo sprintf("
                   .mission-control-item-r%d-c%d{
-                    min-height: %dpx;
-                    min-width: %dpx;
-                    height: %dpx;
-                    width: %dpx;
-                    max-height: %dpx;
-                    max-width: %dpx;
+                    width: calc(%d * var(--mc-block) + %d * var(--mc-gutter));
+                    height: calc(%d * var(--mc-block) + %d * var(--mc-gutter));
+                    min-width: 0;
+                    min-height: 0;
+                    max-width: none;
+                    max-height: none;
                   }
-      
+
                   .mission-control-item-r%d-c%d .block_renderer_header > td h5,
                   .mission-control-item-r%d-c%d .block_renderer_header > td h6{
-                    min-width: %dpx;
-                    width: %dpx;
-                    max-width: %dpx;
+                    width: calc(%d * var(--mc-block) + %d * var(--mc-gutter) - %dpx);
+                    max-width: 100%%;
                   }
-      
+
                   .mission-control-item-r%d-c%d .block_renderer_container .resizable{
-                    max-width: %dpx;
-                    max-height: %dpx;
+                    max-width: 100%%;
+                    max-height: 100%%;
                   }
                   ",
                   $i, $j,
-                  $h,
-                  $w,
-                  $h,
-                  $w,
-                  $h,
-                  $w,
+                  $j, $j - 1,
+                  $i, $i - 1,
                   $i, $j,
                   $i, $j,
-                  $header_w,
-                  $header_w,
-                  $header_w,
-                  $i, $j,
-                  $w,
-                  $h-$header_h
+                  $j, $j - 1, $header_pad,
+                  $i, $j
                 );
               }
             }
@@ -254,6 +279,7 @@ class MissionControl {
             .block_renderer_canvas table {
                 width: 100%;
                 height: 100%;
+                table-layout: fixed;
             }
 
             .block_renderer_canvas .block_renderer_header > .block_renderer_icon,
@@ -294,7 +320,45 @@ class MissionControl {
 
             .block_renderer_canvas .block_renderer_container td:first-of-type {
                 text-align: center;
-                vertical-align: middle;
+                vertical-align: bottom;
+                padding: 0 8px 8px;
+            }
+
+            .block_renderer_canvas .block_renderer_container canvas.resizable {
+                display: block;
+                padding-bottom: 4px !important;
+                margin: 0 auto;
+            }
+
+            /* Twist2D gauge: min / unit / max on one baseline (undo overlay hacks) */
+            .block_renderer_canvas .block_renderer_container td > table {
+                position: static !important;
+                top: auto !important;
+                height: auto !important;
+                width: 100% !important;
+                margin: 0;
+                table-layout: fixed;
+            }
+            .block_renderer_canvas .block_renderer_container td > table td {
+                vertical-align: baseline !important;
+                padding: 0 4px;
+                line-height: 1.2;
+                font-variant-numeric: tabular-nums;
+                color: var(--r-muted, #6b7280);
+                white-space: nowrap;
+            }
+            .block_renderer_canvas .block_renderer_container td > table td:first-child {
+                text-align: left;
+            }
+            .block_renderer_canvas .block_renderer_container td > table td:nth-child(2) {
+                text-align: center;
+            }
+            .block_renderer_canvas .block_renderer_container td > table td:last-child {
+                text-align: right;
+            }
+            .block_renderer_canvas .block_renderer_container td > table span {
+                position: static !important;
+                top: auto !important;
             }
 
 
