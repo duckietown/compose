@@ -503,6 +503,15 @@ body .btn-group[data-toggle="buttons"] > .btn:active {
     box-sizing: border-box;
 }
 
+/* Mission Control grid cards — match dt-card chrome in light + dark */
+.mission-control-item {
+    background: var(--r-card, #fff);
+    border-color: var(--r-border);
+    border-radius: var(--r-radius-md, 12px);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
 .panel,
 .panel-default {
     background: var(--r-card);

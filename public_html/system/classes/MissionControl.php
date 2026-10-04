@@ -214,6 +214,8 @@ class MissionControl {
                 background: var(--r-card, #fff);
                 color: var(--r-text, inherit);
                 border: <?php echo $border ?>px solid var(--r-border, hsla(0, 0%, 80%, 0.5));
+                border-radius: var(--r-radius-md, 12px);
+                overflow: hidden;
             }
 
             <?php
