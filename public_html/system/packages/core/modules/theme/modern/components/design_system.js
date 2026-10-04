@@ -86,11 +86,16 @@
         return null;
     }
     function isLeftoverTrack(color) {
-        var lum = paintLuminance(color);
-        if (lum === null) return false;
-        if (lum > 190) return true;
-        var s = color.trim().toLowerCase();
-        return s === '#1c2333' || s === 'rgb(28, 35, 51)' || s === 'rgba(28, 35, 51, 1)';
+        // Only rewrite known Chart.js track fills from prior themes.
+        // Do not treat bright data colors (e.g. white palette entries) as tracks.
+        if (!color || typeof color !== 'string') return false;
+        var s = color.trim().toLowerCase().replace(/\s+/g, '');
+        return s === '#e8ebf1'
+            || s === '#1c2333'
+            || s === 'rgb(232,235,241)'
+            || s === 'rgba(232,235,241,1)'
+            || s === 'rgb(28,35,51)'
+            || s === 'rgba(28,35,51,1)';
     }
     function recolorPaints(value, replacement) {
         if (Array.isArray(value)) {
