@@ -27,13 +27,20 @@ use \system\classes\Core;
         <img id="loginLogo" src="<?php echo htmlspecialchars($logo, ENT_QUOTES, 'UTF-8') ?>" alt="">
         <?php } ?>
       </div>
-      <p class="dt-login-lead">Paste your Duckietown token to sign in.</p>
+      <p class="dt-login-lead">Sign in with Google or your Duckietown token.</p>
 
         <div class="text-center">
           <?php
           $login_enabled = Core::getSetting('login_enabled', 'core');
           if( $login_enabled ){
+            ?>
+            <div id="g-signin" class="text-center" style="display:inline-block; margin: 0 auto 12px;"></div>
+            <img id="signin-loader" src="<?php echo htmlspecialchars(Configuration::$BASE, ENT_QUOTES, 'UTF-8') ?>images/loading_blue.gif" style="display:none; width:32px; height:32px; margin:8px auto;" alt="">
+            <?php
             $login_addon_files_per_pkg = Core::getPackagesModules('login', null);
+            if (count($login_addon_files_per_pkg) > 0) {
+              echo '<legend style="width: 100px; margin: 12px auto"></legend>';
+            }
             foreach ($login_addon_files_per_pkg as $pkg_id => $login_addon_files) {
               require_once $login_addon_files[0];
             }
