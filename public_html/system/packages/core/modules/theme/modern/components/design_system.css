@@ -1417,6 +1417,20 @@ html[data-dt-theme="dark"] .block_renderer_canvas .block_renderer_header > td h6
 html[data-dt-theme="dark"] .block_renderer_canvas canvas {
     background: transparent;
 }
+html[data-dt-theme="dark"] .block_renderer_header,
+html[data-dt-theme="dark"] .block_renderer_header td,
+html[data-dt-theme="dark"] .block_renderer_menu_icon,
+html[data-dt-theme="dark"] .block_renderer_menu_icon .btn,
+html[data-dt-theme="dark"] .block_renderer_header a.btn.dropdown-toggle {
+    color: var(--r-text);
+}
+html[data-dt-theme="dark"] .block_renderer_container,
+html[data-dt-theme="dark"] .block_renderer_container td {
+    color: var(--r-text);
+}
+html[data-dt-theme="dark"] .robot-empty-state {
+    color: var(--r-muted);
+}
 
 html[data-dt-theme="dark"] code {
     color: #fecdd3;
