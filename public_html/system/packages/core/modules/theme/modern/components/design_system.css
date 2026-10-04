@@ -449,7 +449,7 @@ body .btn .fa {
     border-color: transparent;
     color: inherit;
     box-shadow: none;
-    font-size: 16px;
+    font-size: var(--r-fs-xl);
 }
 .block_renderer_menu_icon .btn:hover,
 .block_renderer_menu_icon .btn:focus,
@@ -789,7 +789,7 @@ body .btn-group[data-toggle="buttons"] > .btn:active {
 }
 .modal-header .close {
     margin-top: 2px;
-    font-size: 20px;
+    font-size: var(--r-fs-value);
     opacity: 0.55;
     color: var(--r-text);
     text-shadow: none;
