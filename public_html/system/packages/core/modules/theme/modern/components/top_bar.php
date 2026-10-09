@@ -6,6 +6,9 @@ use system\classes\Core;
 use system\classes\Configuration;
 
 $_TOPBAR_H = 52;
+if (isset(Configuration::$THEME_CONFIG['dimensions']['topbar_height'])) {
+    $_TOPBAR_H = max(1, intval(Configuration::$THEME_CONFIG['dimensions']['topbar_height']));
+}
 
 $main_user_role = Core::getUserRole();
 $user_roles = Core::getUserRolesList();
@@ -24,7 +27,6 @@ if (!Core::isComposeConfigured()) {
 $developer_only_pages = [
     'package_store',
     'users',
-    'profile',
     'api',
     'desktop',
     'onboarding',
@@ -123,14 +125,24 @@ $current_page_id = Configuration::$PAGE;
 $current_page_name = ucfirst((string) Core::getPageDetails($current_page_id, 'name'));
 $show_page_title = ($current_page_id !== 'robot');
 
-$logo = Core::getSetting('logo_black', 'core', '');
-if (!is_string($logo) || strlen(trim($logo)) === 0) {
-    $logo = Core::getSetting('logo_white', 'core', '');
+$normalize_logo = function ($value) {
+    if (!is_string($value)) {
+        return '';
+    }
+    $value = trim($value);
+    if ($value === '') {
+        return '';
+    }
+    return str_replace('~', Configuration::$BASE, str_replace('~/', '~', $value));
+};
+$logo_light = $normalize_logo(Core::getSetting('logo_black', 'core', ''));
+$logo_dark = $normalize_logo(Core::getSetting('logo_white', 'core', ''));
+if ($logo_light === '') {
+    $logo_light = $logo_dark;
 }
-if (!is_string($logo)) {
-    $logo = '';
+if ($logo_dark === '') {
+    $logo_dark = $logo_light;
 }
-$logo = str_replace('~', Configuration::$BASE, str_replace('~/', '~', $logo));
 
 $navbar_title = Core::getSetting('navbar_title', 'core', '');
 if (!is_string($navbar_title)) {
@@ -529,6 +541,9 @@ function _ctheme_nav_link_class($page, $current_page_id) {
     html[data-dt-theme="dark"] ._ctheme_theme_toggle ._ctheme_theme_icon_dark {
         color: #c4b5e8;
     }
+    ._ctheme_logo_dark { display: none; }
+    html[data-dt-theme="dark"] ._ctheme_logo_light { display: none; }
+    html[data-dt-theme="dark"] ._ctheme_logo_dark { display: inline; }
 </style>
 
 <div class="_ctheme_top_bar_inner">
@@ -536,7 +551,13 @@ function _ctheme_nav_link_class($page, $current_page_id) {
         <a class="_ctheme_brand<?php echo ($current_page_id === 'robot') ? ' is-current' : '' ?>"
            href="<?php echo _ctheme_esc($home_url) ?>"
            title="<?php echo $robot_home_allowed ? 'Robot dashboard' : 'Home' ?>">
-            <img src="<?php echo _ctheme_esc($logo) ?>" alt="">
+            <?php if ($logo_light !== '') { ?>
+            <img class="<?php echo ($logo_dark !== '' && $logo_dark !== $logo_light) ? '_ctheme_logo_light' : '' ?>"
+                 src="<?php echo _ctheme_esc($logo_light) ?>" alt="">
+            <?php } ?>
+            <?php if ($logo_dark !== '' && $logo_dark !== $logo_light) { ?>
+            <img class="_ctheme_logo_dark" src="<?php echo _ctheme_esc($logo_dark) ?>" alt="">
+            <?php } ?>
             <span class="_ctheme_brand_text">
                 <span class="_ctheme_brand_title"><?php echo _ctheme_esc($navbar_title) ?></span>
                 <?php if (strlen(trim($navbar_subtitle)) > 0) { ?>
@@ -660,6 +681,12 @@ function _ctheme_nav_link_class($page, $current_page_id) {
                 </a>
                 <ul class="dropdown-menu dropdown-menu-right">
                     <li class="dropdown-header"><?php echo _ctheme_esc($user_name) ?></li>
+                    <li>
+                        <a href="<?php echo _ctheme_esc(Core::getURL('profile')) ?>">
+                            <span class="fa fa-user" aria-hidden="true"></span>
+                            &nbsp;Profile
+                        </a>
+                    </li>
                     <li>
                         <a href="https://hub.duckietown.com/" target="_blank" rel="noopener noreferrer">
                             <span class="fa fa-external-link" aria-hidden="true"></span>

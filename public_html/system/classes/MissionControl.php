@@ -78,6 +78,7 @@ class MissionControl {
                 let gridSel = '#<?php echo $this->grid_id ?>';
                 let mcResolution = <?php echo $resolution ?>;
                 let mcGutter = <?php echo $gutter ?>;
+                let mcScale = <?php echo json_encode($scale_factor) ?>;
                 let mcFitTimer = null;
 
                 function missionControlBlockSize() {
@@ -85,7 +86,7 @@ class MissionControl {
                     if (!el) return 0;
                     let width = el.clientWidth;
                     if (!width) return 0;
-                    let block = (width - (mcResolution - 1) * mcGutter) / mcResolution;
+                    let block = ((width - (mcResolution - 1) * mcGutter) / mcResolution) * mcScale;
                     if (block <= 0) return 0;
                     el.style.setProperty('--mc-block', block + 'px');
                     el.style.setProperty('--mc-gutter', mcGutter + 'px');
@@ -387,7 +388,7 @@ class MissionControl {
 
 class MissionControlMenu {
 
-    function __construct($grid_id, $side, $package_name, $mission_db_name, $mission_name = NULL, $mission_regex = NULL) {
+    function __construct($grid_id, $side, $package_name, $mission_db_name, $mission_name = NULL, $mission_regex = NULL, $defer_toolbar = false) {
         $db = new Database($package_name, $mission_db_name, $mission_regex);
         $missions_list = $db->list_keys();
         self::add_load_modal($missions_list);
@@ -396,6 +397,11 @@ class MissionControlMenu {
         }
         $this->grid_id = $grid_id;
         $this->mission_name = $mission_name;
+        // Existing callers expect the toolbar as soon as the menu is constructed.
+        // Duckiebot passes $defer_toolbar so it can place the buttons in the status bar.
+        if (!$defer_toolbar) {
+            $this->render_toolbar();
+        }
     }//__construct
 
     public function render_toolbar() {
@@ -825,10 +831,32 @@ class MissionControlConfiguration {
     }//render_modal
 
     public static function render_button($grid_id, $class = 'default', $size = 'default') {
+        $style_map = [
+            'default' => 'robot-btn-ghost',
+            'primary' => 'robot-btn-primary',
+            'success' => 'robot-btn-primary',
+            'danger' => 'robot-btn-danger',
+            'warning' => 'robot-btn-ghost',
+            'info' => 'robot-btn-ghost',
+            'link' => 'robot-btn-ghost',
+        ];
+        $size_map = [
+            'lg' => 'robot-btn-sm',
+            'large' => 'robot-btn-sm',
+            'sm' => 'robot-btn-sm',
+            'small' => 'robot-btn-sm',
+            'xs' => 'robot-btn-sm',
+            'default' => 'robot-btn-sm',
+        ];
+        $robot_style = isset($style_map[$class]) ? $style_map[$class] : 'robot-btn-ghost';
+        $robot_size = isset($size_map[$size]) ? $size_map[$size] : 'robot-btn-sm';
+        $bootstrap_style = 'btn-' . ($class === '' ? 'default' : $class);
+        $bootstrap_size = ($size === '' || $size === 'default') ? '' : ' btn-' . $size;
+        $button_class = 'btn ' . $bootstrap_style . $bootstrap_size . ' robot-btn ' . $robot_style . ' ' . $robot_size;
         ?>
         <button
                 type="button"
-                class="robot-btn robot-btn-ghost robot-btn-sm"
+                class="<?php echo htmlspecialchars($button_class, ENT_QUOTES, 'UTF-8') ?>"
                 data-toggle="modal"
                 data-target="#mission_<?php echo $grid_id ?>_options_modal"
         >

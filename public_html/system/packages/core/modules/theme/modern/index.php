@@ -15,6 +15,11 @@ if ($is_embed) {
     $page_class .= ' is-embed';
 }
 
+$topbar_h = 52;
+if (isset(Configuration::$THEME_CONFIG['dimensions']['topbar_height'])) {
+    $topbar_h = max(1, intval(Configuration::$THEME_CONFIG['dimensions']['topbar_height']));
+}
+
 $ds_css_path = join_path(__DIR__, 'components/design_system.css');
 $ds_js_path = join_path(__DIR__, 'components/design_system.js');
 $ds_css_url = Configuration::$BASE . 'system/packages/core/modules/theme/modern/components/design_system.css';
@@ -54,7 +59,7 @@ if (is_file($ds_js_path)) {
 
     ._ctheme_container {
         position: absolute;
-        top: 52px;
+        top: <?php echo $topbar_h ?>px;
         bottom: 0;
         left: 0;
         right: 0;
@@ -63,7 +68,7 @@ if (is_file($ds_js_path)) {
 
     ._ctheme_top_bar {
         left: 0;
-        height: 52px;
+        height: <?php echo $topbar_h ?>px;
     }
     
     ._ctheme_content {

@@ -14,17 +14,36 @@ use \system\classes\Core;
       <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;">
         <h3><i class="fa fa-lock" aria-hidden="true"></i> Sign in</h3>
         <?php
-          $logo = Core::getSetting('logo_black', 'core', '');
-          if (!is_string($logo) || strlen(trim($logo)) === 0) {
-              $logo = Core::getSetting('logo_white', 'core', '');
+          $normalize_logo = function ($value) {
+              if (!is_string($value)) {
+                  return '';
+              }
+              $value = trim($value);
+              if ($value === '') {
+                  return '';
+              }
+              return str_replace('~', Configuration::$BASE, str_replace('~/', '~', $value));
+          };
+          $logo_light = $normalize_logo(Core::getSetting('logo_black', 'core', ''));
+          $logo_dark = $normalize_logo(Core::getSetting('logo_white', 'core', ''));
+          if ($logo_light === '') {
+              $logo_light = $logo_dark;
           }
-          if (!is_string($logo)) {
-              $logo = '';
+          if ($logo_dark === '') {
+              $logo_dark = $logo_light;
           }
-          $logo = str_replace('~', Configuration::$BASE, str_replace('~/', '~', $logo));
-          if (strlen(trim($logo)) > 0) {
+          if ($logo_light !== '') {
         ?>
-        <img id="loginLogo" src="<?php echo htmlspecialchars($logo, ENT_QUOTES, 'UTF-8') ?>" alt="">
+        <style>
+          #loginLogoDark { display: none; }
+          html[data-dt-theme="dark"] #loginLogoLight { display: none; }
+          html[data-dt-theme="dark"] #loginLogoDark { display: inline; }
+        </style>
+        <img id="<?php echo ($logo_dark !== '' && $logo_dark !== $logo_light) ? 'loginLogoLight' : 'loginLogo' ?>"
+             src="<?php echo htmlspecialchars($logo_light, ENT_QUOTES, 'UTF-8') ?>" alt="">
+        <?php if ($logo_dark !== '' && $logo_dark !== $logo_light) { ?>
+        <img id="loginLogoDark" src="<?php echo htmlspecialchars($logo_dark, ENT_QUOTES, 'UTF-8') ?>" alt="">
+        <?php } ?>
         <?php } ?>
       </div>
       <p class="dt-login-lead">Sign in with Google or your Duckietown token.</p>

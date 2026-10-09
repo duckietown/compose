@@ -43,7 +43,7 @@ function settings_theme_tab($args, $settings_tab_id) {
     $form->render();
     ?>
     <div class="dt-form-actions">
-    <button type="button" class="robot-btn robot-btn-primary" id="theme-configuration-save-button">
+    <button type="button" class="btn btn-success robot-btn robot-btn-primary" id="theme-configuration-save-button">
         <i class="fa fa-check" aria-hidden="true"></i>
         Save and Apply
     </button>
