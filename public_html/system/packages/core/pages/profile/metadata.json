@@ -10,7 +10,12 @@
         "responsive" : {
             "priority" : 40
         },
-        "exclude_roles" : []
+        "exclude_roles" : [
+            "administrator",
+            "supervisor",
+            "user",
+            "guest"
+        ]
     },
     "child_pages" : [],
     "access_level" : [

@@ -58,7 +58,7 @@ $current_resource = sprintf($modes[$mode]['resource'], $group);
 if (!is_null($group)) {
     $lst_args = isset($_GET['lst']) ? base64_decode($_GET['lst']) : '';
     ?>
-    <p style="margin-top:-30px; margin-bottom:30px">
+    <p style="margin:0 0 16px">
         <a href="<?php echo Core::getURL(Configuration::$PAGE, Configuration::$ACTION, null, null, $lst_args) ?>">
             &larr; Back to Groups
         </a>

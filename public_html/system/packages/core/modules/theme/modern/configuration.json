@@ -10,17 +10,17 @@
                 "sidebar_full_width": {
                     "details": "Width of the sidebar (full mode, in pixels)",
                     "type": "numeric",
-                    "default": 280
+                    "default": 240
                 },
                 "sidebar_small_width": {
                     "details": "Width of the sidebar (compact mode, in pixels)",
                     "type": "numeric",
-                    "default": 90
+                    "default": 72
                 },
                 "topbar_height": {
                     "details": "Height of the top bar (in pixels)",
                     "type": "numeric",
-                    "default": 80
+                    "default": 52
                 },
                 "page_padding": {
                     "details": "Space between the page and the browser window (in pixels)",
@@ -35,7 +35,7 @@
                 "footer_height": {
                     "details": "Height of the footer bar (in pixels)",
                     "type": "numeric",
-                    "default": 175
+                    "default": 96
                 }
             }
         },

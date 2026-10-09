@@ -26,9 +26,12 @@ class MissionControl {
         if (isset($opts['show_header']) && !boolval($opts['show_header'])) {
             $header_h = 0;
         }
-        $scale_factor = min(max($opts['scale_factor'], 0.2), 2.0);
+        $resolution = max(1, intval($opts['resolution']));
+        $gutter = max(0, intval($opts['block_gutter']));
+        $border = max(0, intval($opts['block_border_thickness']));
+        $scale_factor = min(max(floatval($opts['scale_factor']), 0.2), 2.0);
         $block_size = $scale_factor * ($this->default_canvas_size -
-                ($opts['resolution'] - 1) * $opts['block_gutter']) / $opts['resolution'];
+                ($resolution - 1) * $gutter) / $resolution;
         // load all block renderers registered
         Core::loadPackagesModules('renderers/blocks');
         // get all block renderers registered
@@ -71,24 +74,55 @@ class MissionControl {
         </div>
 
         <script type="text/javascript">
-            $(document).ready(function () {
-                // create grid
-                let grid = $('#<?php echo $this->grid_id ?>').packery({
-                    itemSelector: '.mission-control-item',
-                    columnWidth: <?php echo $block_size ?>,
-                    gutter: <?php echo $opts['block_gutter'] ?>
-                });
-                <?php if($opts['draggable']){ ?>
-                    // make all grid-items draggable
+            (function () {
+                let gridSel = '#<?php echo $this->grid_id ?>';
+                let mcResolution = <?php echo $resolution ?>;
+                let mcGutter = <?php echo $gutter ?>;
+                let mcScale = <?php echo json_encode($scale_factor) ?>;
+                let mcFitTimer = null;
+
+                function missionControlBlockSize() {
+                    let el = document.querySelector(gridSel);
+                    if (!el) return 0;
+                    let width = el.clientWidth;
+                    if (!width) return 0;
+                    let block = ((width - (mcResolution - 1) * mcGutter) / mcResolution) * mcScale;
+                    if (block <= 0) return 0;
+                    el.style.setProperty('--mc-block', block + 'px');
+                    el.style.setProperty('--mc-gutter', mcGutter + 'px');
+                    return block;
+                }
+
+                function missionControlRelayout() {
+                    let block = missionControlBlockSize();
+                    let grid = $(gridSel);
+                    if (block && grid.data('packery')) {
+                        grid.packery('option', { columnWidth: block, gutter: mcGutter });
+                        grid.packery();
+                    }
+                }
+
+                $(document).ready(function () {
+                    let startBlock = missionControlBlockSize() || <?php echo json_encode($block_size) ?>;
+                    let grid = $(gridSel).packery({
+                        itemSelector: '.mission-control-item',
+                        columnWidth: startBlock,
+                        gutter: mcGutter
+                    });
+                    <?php if($opts['draggable']){ ?>
                     grid.find('.mission-control-item').each(function (i, gridItem) {
                         let draggie = new Draggabilly(gridItem);
-                        // bind drag events to Packery
                         grid.packery('bindDraggabillyEvents', draggie);
                     });
-                <?php
-                }
-                ?>
-            });
+                    <?php } ?>
+                    missionControlRelayout();
+                });
+
+                $(window).on('resize.mission-control-<?php echo $this->grid_id ?>', function () {
+                    clearTimeout(mcFitTimer);
+                    mcFitTimer = setTimeout(missionControlRelayout, 80);
+                });
+            })();
 
             function mission_control_switch_shape(box_id, new_rows, new_cols) {
                 // get box
@@ -115,8 +149,8 @@ class MissionControl {
                 let block = $('#{0}'.format(block_id));
                 grid.packery('remove', block).packery();
                 // highlight the Save button in the menu
-                $('#mission-control-side-menu-save-button').removeClass('btn-default');
-                $('#mission-control-side-menu-save-button').addClass('btn-warning');
+                $('#mission-control-side-menu-save-button').removeClass('robot-btn-ghost btn-default');
+                $('#mission-control-side-menu-save-button').addClass('robot-btn-warn btn-warning');
             }//mission_control_dispose_block
 
             function mission_control_serialize_block(box_id) {
@@ -160,8 +194,12 @@ class MissionControl {
             ?>
 
             #<?php echo $this->grid_id ?>{
+                --mc-block: <?php echo $block_size ?>px;
+                --mc-gutter: <?php echo $gutter ?>px;
                 background: inherit;
+                width: 100%;
                 max-width: 100%;
+                box-sizing: border-box;
             }
 
             /* clear fix */
@@ -173,55 +211,46 @@ class MissionControl {
 
             .mission-control-item {
                 float: left;
-                background: #fff;
-                border: <?php echo $opts['block_border_thickness'] ?>px solid hsla(0, 0%, 80%, 0.5);
+                box-sizing: border-box;
+                background: var(--r-card, #fff);
+                color: var(--r-text, inherit);
+                border: <?php echo $border ?>px solid var(--r-border, hsla(0, 0%, 80%, 0.5));
+                border-radius: var(--r-radius-md, 12px);
+                overflow: hidden;
             }
 
             <?php
-            for ($i = 1; $i < $opts['resolution']+1; $i++) {
-              for ($j = 1; $j < $opts['resolution']+1; $j++) {
-                 $h = $i * $block_size + ($i - 1) * $opts['block_gutter'];
-                 $w = $j * $block_size + ($j - 1) * $opts['block_gutter'];
-
-                $header_w = $w - 2*$header_h - 2*$opts['block_border_thickness'];
-
+            for ($i = 1; $i < $resolution + 1; $i++) {
+              for ($j = 1; $j < $resolution + 1; $j++) {
+                $header_pad = 2 * $header_h + 2 * $border;
                 echo sprintf("
                   .mission-control-item-r%d-c%d{
-                    min-height: %dpx;
-                    min-width: %dpx;
-                    height: %dpx;
-                    width: %dpx;
-                    max-height: %dpx;
-                    max-width: %dpx;
+                    width: calc(%d * var(--mc-block) + %d * var(--mc-gutter));
+                    height: calc(%d * var(--mc-block) + %d * var(--mc-gutter));
+                    min-width: 0;
+                    min-height: 0;
+                    max-width: none;
+                    max-height: none;
                   }
-      
+
                   .mission-control-item-r%d-c%d .block_renderer_header > td h5,
                   .mission-control-item-r%d-c%d .block_renderer_header > td h6{
-                    min-width: %dpx;
-                    width: %dpx;
-                    max-width: %dpx;
+                    width: calc(%d * var(--mc-block) + %d * var(--mc-gutter) - %dpx);
+                    max-width: 100%%;
                   }
-      
+
                   .mission-control-item-r%d-c%d .block_renderer_container .resizable{
-                    max-width: %dpx;
-                    max-height: %dpx;
+                    max-width: 100%%;
+                    max-height: 100%%;
                   }
                   ",
                   $i, $j,
-                  $h,
-                  $w,
-                  $h,
-                  $w,
-                  $h,
-                  $w,
+                  $j, $j - 1,
+                  $i, $i - 1,
                   $i, $j,
                   $i, $j,
-                  $header_w,
-                  $header_w,
-                  $header_w,
-                  $i, $j,
-                  $w,
-                  $h-$header_h
+                  $j, $j - 1, $header_pad,
+                  $i, $j
                 );
               }
             }
@@ -253,6 +282,7 @@ class MissionControl {
             .block_renderer_canvas table {
                 width: 100%;
                 height: 100%;
+                table-layout: fixed;
             }
 
             .block_renderer_canvas .block_renderer_header > .block_renderer_icon,
@@ -293,7 +323,45 @@ class MissionControl {
 
             .block_renderer_canvas .block_renderer_container td:first-of-type {
                 text-align: center;
-                vertical-align: middle;
+                vertical-align: bottom;
+                padding: 0 8px 8px;
+            }
+
+            .block_renderer_canvas .block_renderer_container canvas.resizable {
+                display: block;
+                padding-bottom: 4px !important;
+                margin: 0 auto;
+            }
+
+            /* Twist2D gauge: min / unit / max on one baseline (undo overlay hacks) */
+            .block_renderer_canvas .block_renderer_container td > table {
+                position: static !important;
+                top: auto !important;
+                height: auto !important;
+                width: 100% !important;
+                margin: 0;
+                table-layout: fixed;
+            }
+            .block_renderer_canvas .block_renderer_container td > table td {
+                vertical-align: baseline !important;
+                padding: 0 4px;
+                line-height: 1.2;
+                font-variant-numeric: tabular-nums;
+                color: var(--r-muted, #6b7280);
+                white-space: nowrap;
+            }
+            .block_renderer_canvas .block_renderer_container td > table td:first-child {
+                text-align: left;
+            }
+            .block_renderer_canvas .block_renderer_container td > table td:nth-child(2) {
+                text-align: center;
+            }
+            .block_renderer_canvas .block_renderer_container td > table td:last-child {
+                text-align: right;
+            }
+            .block_renderer_canvas .block_renderer_container td > table span {
+                position: static !important;
+                top: auto !important;
             }
 
 
@@ -320,108 +388,57 @@ class MissionControl {
 
 class MissionControlMenu {
 
-    function __construct($grid_id, $side, $package_name, $mission_db_name, $mission_name = NULL, $mission_regex = NULL) {
+    function __construct($grid_id, $side, $package_name, $mission_db_name, $mission_name = NULL, $mission_regex = NULL, $defer_toolbar = false) {
         $db = new Database($package_name, $mission_db_name, $mission_regex);
-        // get list of missions available
         $missions_list = $db->list_keys();
-        // render side menu
-        self::render_menu($grid_id, $side, $mission_name);
-        // add load mission modal
         self::add_load_modal($missions_list);
-        // add new block modal
         if (!is_null($mission_name)) {
             self::add_new_block_modal($mission_name);
         }
+        $this->grid_id = $grid_id;
+        $this->mission_name = $mission_name;
+        // Existing callers expect the toolbar as soon as the menu is constructed.
+        // Duckiebot passes $defer_toolbar so it can place the buttons in the status bar.
+        if (!$defer_toolbar) {
+            $this->render_toolbar();
+        }
     }//__construct
+
+    public function render_toolbar() {
+        self::render_menu($this->grid_id, 'left', $this->mission_name);
+    }
 
     public static function render_menu($grid_id, $side, $mission_name) {
         $is_mission_loaded = !is_null($mission_name);
         ?>
-        <style type="text/css">
-
-            .mission-control-side-menu {
-                position: absolute;
-                top: 90px;
-            <?php echo $side ?>: 10px;
-                width: 70px;
-            }
-
-            .mission-control-side-menu-button {
-                background-image: none;
-                padding: 10px 0;
-            }
-
-            .mission-control-side-menu-button.disabled {
-                background-color: lightgray;
-            }
-
-            .mission-control-side-menu-button .glyphicon {
-                font-size: 18px;
-            }
-
-            .mission-control-side-menu-button #label {
-                padding-right: 3px;
-                margin-top: 6px;
-            }
-        </style>
-
-        <div class="btn-group-vertical mission-control-side-menu" id="mission-control-side-menu"
-             role="group" aria-label="...">
-            <button type="button" class="btn btn-default mission-control-side-menu-button"
+        <div class="robot-mc-tools" id="mission-control-side-menu" role="group" aria-label="Mission tools">
+            <button type="button" class="robot-btn robot-btn-ghost robot-btn-sm"
                     onclick="mission_control_new_mission_fcn()">
-                <div>
-                    <span class="glyphicon glyphicon-asterisk" aria-hidden="true"></span>
-                </div>
-                <div id="label">
-                    New
-                </div>
+                <i class="fa fa-file-o" aria-hidden="true"></i> New
             </button>
-            <button type="button" class="btn btn-default mission-control-side-menu-button"
+            <button type="button" class="robot-btn robot-btn-ghost robot-btn-sm"
                     data-toggle="modal" data-target="#mission-control-load-modal">
-                <div>
-                    <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
-                </div>
-                <div id="label">
-                    Open
-                </div>
+                <i class="fa fa-folder-open" aria-hidden="true"></i> Open
             </button>
             <button
                     type="button"
                     id="mission-control-side-menu-save-button"
-                    class="btn btn-default mission-control-side-menu-button <?php echo ($is_mission_loaded) ? '' : 'disabled' ?>"
+                    class="robot-btn robot-btn-ghost robot-btn-sm <?php echo ($is_mission_loaded) ? '' : 'disabled' ?>"
                 <?php echo ($is_mission_loaded) ? 'onclick="mission_control_save_fcn()"' : '' ?>
             >
-                <div>
-                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
-                </div>
-                <div id="label">
-                    Save
-                </div>
+                <i class="fa fa-floppy-o" aria-hidden="true"></i> Save
             </button>
-            <button type="button" class="btn btn-default mission-control-side-menu-button"
+            <button type="button" class="robot-btn robot-btn-ghost robot-btn-sm"
                     onclick="mission_control_save_as_fcn()">
-                <div>
-                    <span class="glyphicon glyphicon-floppy-save" aria-hidden="true"></span>
-                </div>
-                <div id="label">
-                    Save as
-                </div>
+                <i class="fa fa-download" aria-hidden="true"></i> Save as
             </button>
-
-            <legend style="margin: 0; margin-top: 4px; border: 0"></legend>
-
             <button
                     type="button"
-                    class="btn btn-default mission-control-side-menu-button <?php echo ($is_mission_loaded) ? '' : 'disabled' ?>"
+                    class="robot-btn robot-btn-ghost robot-btn-sm <?php echo ($is_mission_loaded) ? '' : 'disabled' ?>"
                     data-toggle="modal"
                 <?php echo ($is_mission_loaded) ? 'data-target="#mission-control-add-block-modal"' : '' ?>
             >
-                <div>
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                </div>
-                <div id="label">
-                    Add
-                </div>
+                <i class="fa fa-plus" aria-hidden="true"></i> Add block
             </button>
         </div>
 
@@ -521,16 +538,6 @@ class MissionControlMenu {
             }
             ?>
 
-            function mission_control_center_toolbox() {
-                var side_menu = $('#mission-control-side-menu');
-                var offset = ($(window).height() - side_menu.height()) / 2;
-                offset = Math.max(90, offset);
-                side_menu.css("top", offset);
-            }//mission_control_center_toolbox
-
-            $(window).on("resize", mission_control_center_toolbox);
-            $(document).on("ready", mission_control_center_toolbox);
-
         </script>
         <?php
     }
@@ -544,7 +551,7 @@ class MissionControlMenu {
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal"
                                 aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Load Mission</h4>
+                        <h4 class="modal-title">Open mission</h4>
                     </div>
                     <div class="modal-body">
                         <table class="table table-striped">
@@ -564,15 +571,13 @@ class MissionControlMenu {
                                         <a class="btn btn-default btn-xs"
                                            onclick="mission_control_load_fcn('<?php echo $mission ?>')"
                                            role="button">
-                                            <span class="glyphicon glyphicon-download-alt"
-                                                  aria-hidden="true"></span>
+                                            <i class="fa fa-folder-open" aria-hidden="true"></i>
                                             Open
                                         </a>
-                                        &nbsp; | &nbsp;
+                                        &nbsp;
                                         <a class="btn btn-danger btn-xs" role="button"
                                            onclick="mission_control_delete_fcn('<?php echo $mission ?>')">
-                                            <span class="glyphicon glyphicon-trash"
-                                                  aria-hidden="true"></span>
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
                                             Delete
                                         </a>
                                     </td>
@@ -606,7 +611,7 @@ class MissionControlMenu {
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal"
                                 aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Add Block</h4>
+                        <h4 class="modal-title">Add block</h4>
                     </div>
                     <div class="modal-body">
                         <table class="table table-striped">
@@ -766,7 +771,7 @@ class MissionControlConfiguration {
                             <span class="sr-only">Close</span>
                         </button>
                         <h4 class="modal-title text-center">
-                            Mission Properties
+                            Mission Control Settings
                         </h4>
                     </div>
 
@@ -801,7 +806,7 @@ class MissionControlConfiguration {
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close
                         </button>
-                        <button type="button" class="btn btn-success" id="save-button">Save
+                        <button type="button" class="btn btn-primary" id="save-button">Save
                         </button>
                     </div>
                 </div>
@@ -826,15 +831,37 @@ class MissionControlConfiguration {
     }//render_modal
 
     public static function render_button($grid_id, $class = 'default', $size = 'default') {
+        $style_map = [
+            'default' => 'robot-btn-ghost',
+            'primary' => 'robot-btn-primary',
+            'success' => 'robot-btn-primary',
+            'danger' => 'robot-btn-danger',
+            'warning' => 'robot-btn-ghost',
+            'info' => 'robot-btn-ghost',
+            'link' => 'robot-btn-ghost',
+        ];
+        $size_map = [
+            'lg' => 'robot-btn-sm',
+            'large' => 'robot-btn-sm',
+            'sm' => 'robot-btn-sm',
+            'small' => 'robot-btn-sm',
+            'xs' => 'robot-btn-sm',
+            'default' => 'robot-btn-sm',
+        ];
+        $robot_style = isset($style_map[$class]) ? $style_map[$class] : 'robot-btn-ghost';
+        $robot_size = isset($size_map[$size]) ? $size_map[$size] : 'robot-btn-sm';
+        $bootstrap_style = 'btn-' . ($class === '' ? 'default' : $class);
+        $bootstrap_size = ($size === '' || $size === 'default') ? '' : ' btn-' . $size;
+        $button_class = 'btn ' . $bootstrap_style . $bootstrap_size . ' robot-btn ' . $robot_style . ' ' . $robot_size;
         ?>
         <button
                 type="button"
-                class="btn btn-<?php echo $class ?> btn-<?php echo $size ?>"
+                class="<?php echo htmlspecialchars($button_class, ENT_QUOTES, 'UTF-8') ?>"
                 data-toggle="modal"
                 data-target="#mission_<?php echo $grid_id ?>_options_modal"
         >
-            <i class="fa fa-cog" aria-hidden="true"></i>&nbsp;
-            Settings
+            <i class="fa fa-cog" aria-hidden="true"></i>
+            Mission Control Settings
         </button>
         <?php
     }//render_button

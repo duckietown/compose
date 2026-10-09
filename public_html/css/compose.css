@@ -13,7 +13,7 @@ bold{
 }
 
 legend{
-    border-bottom: 1px solid lightgrey;
+    border-bottom: 1px solid var(--r-border, lightgrey);
 }
 
 footer #avatar{
@@ -21,14 +21,14 @@ footer #avatar{
     width: 60px;
     height: 60px;
     margin-top: -30px;
-    border: 1px solid black;
+    border: 1px solid var(--r-border, black);
 }
 
 .formatted-avatar,
 .formatted-avatar-small{
     border-radius: 50%;
     width: 60px;
-    border: 1px solid lightgrey;
+    border: 1px solid var(--r-border, lightgrey);
 }
 
 .formatted-avatar-small{
@@ -436,7 +436,7 @@ a.anchor{
   max-width: 240px;
   height: 50px;
   border-width: 0;
-  background: white;
+  background: var(--r-card, white);
   white-space: nowrap;
   box-shadow: 1px 2px 1px 1px rgba(0,0,0,0.14);
   transition-property: background-color, box-shadow;

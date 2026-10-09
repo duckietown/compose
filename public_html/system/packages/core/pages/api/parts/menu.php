@@ -24,27 +24,27 @@ function _api_page_menu_part(&$api_setup, &$version, &$sget, &$aget){
         }
 
         .api_menu_item .api_menu_item_header-active{
-            background-color: #337ab7;
-            color: white;
+            background-color: var(--r-fill, #337ab7);
+            color: var(--r-on-fill, white);
         }
 
         .api_menu_item .panel-body{
-            background-color: #efeeee;
+            background-color: var(--r-surface, #efeeee);
             padding: 0;
             padding-left: 14px;
-            border-bottom: 1px solid darkgrey;
+            border-bottom: 1px solid var(--r-border, darkgrey);
         }
 
         .api_menu_item .panel-body h5{
-            color: #2b2b2b;
+            color: var(--r-text, #2b2b2b);
             font-weight: normal;
             padding: 3px;
             padding-left: 6px;
         }
 
         .api_menu_item .panel-body h5.active{
-            color: white;
-            background-color: #337ab7;
+            color: var(--r-on-fill, white);
+            background-color: var(--r-fill, #337ab7);
         }
     </style>
 

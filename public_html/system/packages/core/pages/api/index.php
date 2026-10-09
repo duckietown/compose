@@ -36,8 +36,8 @@ require_once __DIR__.'/parts/menu.php';
 		-moz-border-radius: 4px;
 		-webkit-border-radius: 4px;
 		border-radius: 4px;
-		border: 1px solid #d3d3d3;
-		background-color: #ffffff;
+		border: 1px solid var(--r-border, #d3d3d3);
+		background-color: var(--r-card, #ffffff);
 		padding: 10px;
 		display: inline-block;
 	}
@@ -68,7 +68,7 @@ $aget = ( ($sget !== null && isset($_GET['action']) && in_array($_GET['action'],
 				?>
 			</div>
       <br/>
-      <span style="color:grey; float:right">Token: <?php echo $_SESSION['TOKEN'] ?></span>
+      <span style="color:var(--r-muted, grey); float:right">Token: <?php echo $_SESSION['TOKEN'] ?></span>
 		</td>
 
 		<td style="width:76%; vertical-align:top; padding-left:6px">

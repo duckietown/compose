@@ -43,7 +43,7 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
                         <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
                     </h2>
                 </td>
-                <td class="mono" style="padding-right:14px; border-right:1px solid #d8d8d8">
+                <td class="mono" style="padding-right:14px; border-right:1px solid var(--r-border, #d8d8d8)">
                     <h3 class="text-right" style="margin:0"><?php echo $sget ?></h3>
                 </td>
                 <td class="mono" style="padding-left:14px">
@@ -51,11 +51,11 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
                 </td>
             </tr>
             <tr>
-                <td class="mono" style="padding-right:14px;  border-right:1px solid #d8d8d8">
-                    <h6 class="text-right" style="color:#d3d3d3; margin:0">service</h6>
+                <td class="mono" style="padding-right:14px;  border-right:1px solid var(--r-border, #d8d8d8)">
+                    <h6 class="text-right" style="color:var(--r-muted, #d3d3d3); margin:0">service</h6>
                 </td>
                 <td class="mono" style="padding-left:14px">
-                    <h6 class="text-left" style="color:#d3d3d3; margin:0">action</h6>
+                    <h6 class="text-left" style="color:var(--r-muted, #d3d3d3); margin:0">action</h6>
                 </td>
             </tr>
         </table>
@@ -76,12 +76,12 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
                 </tr>
                 <tr>
                     <td class="mono" style="padding-bottom:8px">
-                        <h6 class="text-center" style="color:#8b8b8b; margin:0">APIv<?php echo $version ?></h6>
+                        <h6 class="text-center" style="color:var(--r-muted, #8b8b8b); margin:0">APIv<?php echo $version ?></h6>
                     </td>
                 </tr>
 
                 <tr>
-                    <td style="border-bottom:1px solid #d8d8d8"></td>
+                    <td style="border-bottom:1px solid var(--r-border, #d8d8d8)"></td>
                 </tr>
 
                 <tr id="cp_service_tr">
@@ -93,12 +93,12 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
                 </tr>
                 <tr>
                     <td class="mono" style="padding-bottom:8px">
-                        <h6 class="text-center" style="color:#8b8b8b; margin:0">service</h6>
+                        <h6 class="text-center" style="color:var(--r-muted, #8b8b8b); margin:0">service</h6>
                     </td>
                 </tr>
 
                 <tr>
-                    <td style="border-bottom:1px solid #d8d8d8"></td>
+                    <td style="border-bottom:1px solid var(--r-border, #d8d8d8)"></td>
                 </tr>
 
                 <tr id="cp_action_tr">
@@ -110,7 +110,7 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
                 </tr>
                 <tr>
                     <td class="mono">
-                        <h6 class="text-center" style="color:#8b8b8b; margin:0">action</h6>
+                        <h6 class="text-center" style="color:var(--r-muted, #8b8b8b); margin:0">action</h6>
                     </td>
                 </tr>
             </tbody>
@@ -163,7 +163,7 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
         <div class="api-service-section">
             <a class="anchor" id="service"></a>
             <h3>
-                The <span class="mono emph"><?php echo $sget ?></span> service &nbsp;<span style="font-size:70%; color:#bababa">( <span class="<?php echo ( ($service_enabled)? 'on' : 'off' ) ?>"> <span class="glyphicon glyphicon-log-in"></span> &nbsp;<?php echo ( ($service_enabled)? 'OnLine' : 'OffLine' ) ?> </span> )</span>
+                The <span class="mono emph"><?php echo $sget ?></span> service &nbsp;<span style="font-size:70%; color:var(--r-muted, #bababa)">( <span class="<?php echo ( ($service_enabled)? 'on' : 'off' ) ?>"> <span class="glyphicon glyphicon-log-in"></span> &nbsp;<?php echo ( ($service_enabled)? 'OnLine' : 'OffLine' ) ?> </span> )</span>
             </h3>
             <div>
                 <p>
@@ -176,7 +176,7 @@ function _api_page_reference_section( &$api_setup, &$version, &$sget, &$aget ){
         <div class="api-service-section">
             <a class="anchor" id="action"></a>
             <h3>
-                The <span class="mono emph"><?php echo $aget ?></span> action &nbsp;<span style="font-size:70%; color:#bababa">( <span class="<?php echo ( ($action_enabled)? 'on' : 'off' ) ?>"> <span class="glyphicon glyphicon-log-in"></span> &nbsp;<?php echo ( ($action_enabled)? 'OnLine' : 'OffLine' ) ?> </span> )</span>
+                The <span class="mono emph"><?php echo $aget ?></span> action &nbsp;<span style="font-size:70%; color:var(--r-muted, #bababa)">( <span class="<?php echo ( ($action_enabled)? 'on' : 'off' ) ?>"> <span class="glyphicon glyphicon-log-in"></span> &nbsp;<?php echo ( ($action_enabled)? 'OnLine' : 'OffLine' ) ?> </span> )</span>
             </h3>
             <div>
                 <p>
@@ -563,10 +563,10 @@ function createParametersTable( $parameters, $pre='', $post='', $i=0 ){
         ?>
         <table style="width:600px; margin: 14px 0 20px 20px">
             <tr>
-                <td style="width:12px; border-bottom:1px dashed #d3d3d3">
+                <td style="width:12px; border-bottom:1px dashed var(--r-border, #d3d3d3)">
                     <strong>&bull;</strong>
                 </td>
-                <td style="padding-right:16px; width:150px; border-bottom:1px dashed #d3d3d3; white-space:nowrap">
+                <td style="padding-right:16px; width:150px; border-bottom:1px dashed var(--r-border, #d3d3d3); white-space:nowrap">
                     <?php
 
                     $is_finite = ($parameters[sizeof($parameters)-1]!=='...');
@@ -575,8 +575,8 @@ function createParametersTable( $parameters, $pre='', $post='', $i=0 ){
 
                     ?>
                 </td>
-                <td style="border-bottom:1px dashed #d3d3d3">
-                    <span style="color:grey">
+                <td style="border-bottom:1px dashed var(--r-border, #d3d3d3)">
+                    <span style="color:var(--r-muted, grey)">
                         Type: <span class="emph"><?php echo $param_spec['type'] ?></span>
                         <?php
                         if (isset($param_spec['length']) && $param_spec['length'] !== null) {

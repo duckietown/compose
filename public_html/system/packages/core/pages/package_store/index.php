@@ -10,7 +10,9 @@ if (!in_array(Configuration::$ACTION, ['', 'install', 'verify'])) {
     Core::redirectTo('package_store');
     return;
 }
-
+?>
+<div class="dt-page">
+<?php
 if (Configuration::$ACTION == '') {
     include_once __DIR__ . '/parts/list.php';
 } elseif (Configuration::$ACTION == 'install') {
@@ -19,5 +21,7 @@ if (Configuration::$ACTION == '') {
     include_once __DIR__ . '/parts/verify.php';
 } else {
     Core::redirectTo('package_store');
+    return;
 }
 ?>
+</div>
