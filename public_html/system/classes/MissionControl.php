@@ -184,11 +184,6 @@ class MissionControl {
                 #page_container {
                     min-width: 100%;
                 }
-
-                /* adjust grid margin to leave space for the menu */
-                .mission-control-grid {
-                    margin: 0 80px;
-                }
             <?php
             }
             ?>
@@ -197,9 +192,16 @@ class MissionControl {
                 --mc-block: <?php echo $block_size ?>px;
                 --mc-gutter: <?php echo $gutter ?>px;
                 background: inherit;
+                box-sizing: border-box;
+                <?php if ($opts['wide_mode']) { ?>
+                /* 80px each side for the side menu, inside the parent width */
+                width: calc(100% - 160px);
+                max-width: calc(100% - 160px);
+                margin: 0 80px;
+                <?php } else { ?>
                 width: 100%;
                 max-width: 100%;
-                box-sizing: border-box;
+                <?php } ?>
             }
 
             /* clear fix */
@@ -216,7 +218,14 @@ class MissionControl {
                 color: var(--r-text, inherit);
                 border: <?php echo $border ?>px solid var(--r-border, hsla(0, 0%, 80%, 0.5));
                 border-radius: var(--r-radius-md, 12px);
+                /* Visible so the header ellipsis menu is not clipped. Body
+                   content is clipped below, which keeps the rounded corners. */
+                overflow: visible;
+            }
+            .mission-control-item .block_renderer_container {
                 overflow: hidden;
+                border-bottom-left-radius: var(--r-radius-md, 12px);
+                border-bottom-right-radius: var(--r-radius-md, 12px);
             }
 
             <?php

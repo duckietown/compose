@@ -77,9 +77,28 @@ use \system\classes\Core;
   </p>
 </section>
 
+<?php
+    // Return target is the base64 path from redirectTo(..., true). Accept only
+    // a same-site relative path so a crafted ?q= cannot break out of this script.
+    $return_url = '';
+    $return_q = isset($_GET['q']) ? (string) $_GET['q'] : '';
+    $decoded = base64_decode($return_q, true);
+    if (is_string($decoded)) {
+        $decoded = str_replace(["\0", "\r", "\n"], '', trim($decoded));
+        $is_relative = $decoded !== ''
+            && strpos($decoded, '://') === false
+            && strpos($decoded, '//') !== 0
+            && strpos($decoded, '\\') === false
+            && !preg_match('/^[a-z][a-z0-9+.-]*:/i', $decoded)
+            && preg_match('#^[A-Za-z0-9][A-Za-z0-9_./?&=%@+\-]*$#', $decoded);
+        if ($is_relative) {
+            $return_url = Configuration::$BASE . $decoded;
+        }
+    }
+?>
 <script type="text/javascript">
     $(window).on('COMPOSE_LOGGED_IN', function(){
-        let resource = "<?php echo trim(Configuration::$BASE . base64_decode($_GET['q'])) ?>";
+        let resource = <?php echo json_encode($return_url, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES); ?>;
         if (resource.length > 0) {
             window.open(resource, "_top");
         } else {
