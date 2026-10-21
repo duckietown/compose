@@ -290,7 +290,9 @@ body{
     margin-right: auto;
 }
 
-#loginLogo{
+#loginLogo,
+#loginLogoLight,
+#loginLogoDark{
     max-width: 250px;
     max-height: 32px;
     float: right;

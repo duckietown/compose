@@ -421,29 +421,29 @@ class MissionControlMenu {
         $is_mission_loaded = !is_null($mission_name);
         ?>
         <div class="robot-mc-tools" id="mission-control-side-menu" role="group" aria-label="Mission tools">
-            <button type="button" class="robot-btn robot-btn-ghost robot-btn-sm"
+            <button type="button" class="btn btn-default btn-sm robot-btn robot-btn-ghost robot-btn-sm"
                     onclick="mission_control_new_mission_fcn()">
                 <i class="fa fa-file-o" aria-hidden="true"></i> New
             </button>
-            <button type="button" class="robot-btn robot-btn-ghost robot-btn-sm"
+            <button type="button" class="btn btn-default btn-sm robot-btn robot-btn-ghost robot-btn-sm"
                     data-toggle="modal" data-target="#mission-control-load-modal">
                 <i class="fa fa-folder-open" aria-hidden="true"></i> Open
             </button>
             <button
                     type="button"
                     id="mission-control-side-menu-save-button"
-                    class="robot-btn robot-btn-ghost robot-btn-sm <?php echo ($is_mission_loaded) ? '' : 'disabled' ?>"
+                    class="btn btn-default btn-sm robot-btn robot-btn-ghost robot-btn-sm <?php echo ($is_mission_loaded) ? '' : 'disabled' ?>"
                 <?php echo ($is_mission_loaded) ? 'onclick="mission_control_save_fcn()"' : '' ?>
             >
                 <i class="fa fa-floppy-o" aria-hidden="true"></i> Save
             </button>
-            <button type="button" class="robot-btn robot-btn-ghost robot-btn-sm"
+            <button type="button" class="btn btn-default btn-sm robot-btn robot-btn-ghost robot-btn-sm"
                     onclick="mission_control_save_as_fcn()">
                 <i class="fa fa-download" aria-hidden="true"></i> Save as
             </button>
             <button
                     type="button"
-                    class="robot-btn robot-btn-ghost robot-btn-sm <?php echo ($is_mission_loaded) ? '' : 'disabled' ?>"
+                    class="btn btn-default btn-sm robot-btn robot-btn-ghost robot-btn-sm <?php echo ($is_mission_loaded) ? '' : 'disabled' ?>"
                     data-toggle="modal"
                 <?php echo ($is_mission_loaded) ? 'data-target="#mission-control-add-block-modal"' : '' ?>
             >
