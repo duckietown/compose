@@ -1,5 +1,5 @@
 ARG ARCH=amd64
-ARG PHP_VERSION=7.4
+ARG PHP_VERSION=8.3
 ARG OS_FAMILY=ubuntu
 ARG OS_DISTRO=jammy
 ARG COMPOSE_VERSION=stable
@@ -88,9 +88,13 @@ RUN cd /tmp/ && \
 
 # configure apcu, PHP errors logging, etc
 COPY assets/usr/local/etc/php/conf.d/*.ini /usr/local/etc/php/conf.d/
+RUN cp /usr/local/etc/php/conf.d/apcu.ini /etc/php/${PHP_VERSION}/mods-available/apcu.ini && \
+  cp /usr/local/etc/php/conf.d/log_errors.ini /etc/php/${PHP_VERSION}/mods-available/compose-log-errors.ini && \
+  phpenmod -v "${PHP_VERSION}" apcu compose-log-errors
 
 # copy nginx configuration file
 ADD assets/etc/nginx/default /etc/nginx/sites-available/default
+RUN sed -i "s/php8.3-fpm.sock/php${PHP_VERSION}-fpm.sock/g" /etc/nginx/sites-available/default
 
 # copy SHA of the current commit. This has two effects:
 # - stores the SHA of the commit from which the image was built

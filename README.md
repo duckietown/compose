@@ -23,6 +23,36 @@ Features:
 - *and many many more...*
 
 
+## Runtime requirements
+
+**\\compose\\** requires PHP 8.3 or later, including the OpenSSL extension.
+The Docker image defaults to PHP 8.3. Older PHP runtimes cannot load the updated
+Google authentication dependencies.
+
+Google Sign-In uses PHP-JWT 7 with RSA verification keys explicitly bound to
+RS256 and a minimum key size of 2048 bits. The bundled Google client and its
+Composer-managed dependencies must be deployed together; copying only an updated
+lock file does not update the checked-in libraries.
+
+### Authentication regression tests
+
+With PHP 8.3 and Composer installed:
+
+```sh
+cd public_html/system/classes/google_api_php_client
+composer install
+composer test
+composer validate --strict
+composer audit --locked
+composer install --no-dev
+```
+
+The tests use generated test keys and mocked HTTP responses; Google credentials
+and network access to Google's authentication endpoints are not required.
+The final command restores the production-only vendor tree before committing
+or deploying the bundled dependencies.
+
+
 ## Architecture
 
 You can use **\\compose\\** out-of-the-box, though there is not much to see or

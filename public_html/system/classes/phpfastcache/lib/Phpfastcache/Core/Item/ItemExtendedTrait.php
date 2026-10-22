@@ -435,7 +435,7 @@ trait ItemExtendedTrait
      * Implements \JsonSerializable interface
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->get();
     }

@@ -12,7 +12,29 @@ The Google API Client Library enables you to work with Google APIs such as Googl
 This library is in Beta. We're comfortable enough with the stability and features of the library that we want you to build real production applications on it. We will make an effort to support the public and protected surface of the library and maintain backwards compatibility in the future. While we are still in Beta, we reserve the right to make incompatible changes.
 
 ## Requirements ##
-* [PHP 5.4.0 or higher](http://www.php.net/)
+* [PHP 8.3 or higher](https://www.php.net/)
+* The OpenSSL extension
+
+## Bundled authentication compatibility ##
+
+This copy retains the `Google_Client` API used by compose while updating its
+authentication stack to PHP-JWT 7, Google Auth 1.50 or later, Guzzle 7, and PSR-7 2.
+The client includes compatibility changes for the algorithm-bound JWT `Key` API,
+Guzzle's version constant and error options, and PSR-7's `Utils::streamFor`.
+JWT's JWK parser replaces the obsolete phpseclib dependency.
+Model and collection methods implement PHP 8's interface return types;
+iterator advancement and array mutations follow their standard `void` contracts.
+
+PHP-JWT 7.0.0 is the lowest release that addresses both CVE-2021-46743 and
+CVE-2025-45769. Google ID-token verification still tries one RSA key at a time,
+accepts only RS256, and additionally rejects RSA keys smaller than 2048 bits.
+Do not downgrade JWT or disable Composer's advisory checks to retain an older
+PHP runtime.
+
+Install development dependencies with `composer install` and run `composer test`
+to exercise token verification, key rotation, OAuth token exchange, HTTP
+middleware, uploads, batch responses, and CMS bootstrap compatibility.
+Use `composer install --no-dev` to restore the checked-in production vendor tree.
 
 ## Google Cloud Platform APIs
 If you're looking to call the **Google Cloud Platform** APIs, you will want to use the [Google Cloud PHP](https://github.com/googlecloudplatform/google-cloud-php) library instead of this one.
