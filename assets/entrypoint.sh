@@ -17,7 +17,7 @@ COMPOSE_USERDATA_DIR=$(realpath -s "${COMPOSE_USERDATA_DIR}")
 # from this point on, if something goes wrong, exit
 set -e
 
-check-php-security "${PHP_VERSION:-7.4}"
+check-php-security "${PHP_VERSION:-8.3}"
 
 # get GID of the compose dir
 GID=$(stat -c %g "${COMPOSE_USERDATA_DIR}")
@@ -85,7 +85,7 @@ trap compose_terminate SIGTERM
 
 # launch daemon process (inherited from the PHP image)
 echo "Launching PHP-FPM..."
-sudo -E /etc/init.d/php${PHP_VERSION:-7.4}-fpm start
+sudo -E /etc/init.d/php${PHP_VERSION:-8.3}-fpm start
 
 echo "Launching NGINX..."
 sudo -E nginx -g 'daemon off;'

@@ -23,129 +23,126 @@ Features:
 - *and many many more...*
 
 
-## PHP Runtime Security
+## Runtime requirements
 
-This release keeps the legacy PHP 7.4 application and authentication dependencies.
-The PHP 8/JWT migration is separate; do not copy its Composer manifest, lock file,
-or bundled vendor tree into a PHP 7.4 dashboard.
+**\\compose\\** requires a supported, patched PHP runtime, including the OpenSSL
+extension. The Docker image defaults to the PHP 8.3 branch.
 
-The shared runtime guard checks the selected PHP-FPM binary and the installed
-`fpm` and `common` packages. PHP 7.4 is accepted only for reviewed backports:
+After checking out the selected application version, Docker builds run
+`composer check-platform-reqs --no-dev` against its bundled dependencies.
+Building this migration's application on PHP 7.4 fails at build time instead
+of producing an image whose pages fail Composer's platform check. Use the
+[separate PHP 7.4 security PR](https://github.com/duckietown/compose/pull/6)
+for legacy application deployments.
 
-| Distribution | Minimum package revision |
-|--------------|--------------------------|
-| Ubuntu Focal ESM | `7.4.3-4ubuntu2.29+esm5` |
-| Ondrej Jammy/Noble PPA | `1:7.4.33-31` |
-| Duckietown Focal source build | Exactly `7.4.3-4ubuntu2.29+duckietown1.php2shell.712e60f9` |
+| PHP branch | Minimum version |
+|------------|-----------------|
+| 8.3 | 8.3.36 |
+| 8.4 | 8.4.27 |
+| 8.5 | 8.5.12 |
 
-Canonical lists the Focal ESM revision as fixed for both
-[CVE-2026-109618](https://ubuntu.com/security/CVE-2026-109618) and
-[CVE-2026-109619](https://ubuntu.com/security/CVE-2026-109619).
-Unpatched Focal archive packages, older revisions, unrecognized package forms,
-mismatched FPM/common revisions, and non-FPM binaries fail the guard. The build
-checks immediately after installing PHP and the entrypoint checks before
-starting FPM. Changing the guard invalidates the PHP installation layer.
-
-The image also disables `session.upload_progress.enabled` in the active FPM
-configuration and limits nginx request bodies to 8 MiB, including chunked
-requests without `Content-Length`. Requests above this limit receive HTTP 413.
-These mitigations reduce exposure and do not replace installing both fixes.
-All FPM workers must be recreated from the patched image; restarting an old
-container or rebuilding against Focal's public archive does not install the fix.
-
-### Standalone and Debug Builds
-
-The standalone image retains its Jammy base and PHP 7.4 default. Build a legacy
-application commit or tag, not the PHP 8 migration branch:
-
-```sh
-docker build --pull --no-cache --build-arg ARCH=arm64v8 \
-	--build-arg COMPOSE_VERSION=<legacy-commit-or-tag> \
-	-t duckietown/compose:v<security-version>-arm64v8 .
-make debug-build ARCH=arm64v8 COMPOSE_VERSION=<legacy-commit-or-tag>
-```
-
-Use `amd64` on x86-64. The debug target builds its matching local
-`duckietown/compose:debug-base-<arch>` first and reuses it without a registry
-pull. It installs the selected PHP branch's packaged Xdebug 3.
-
-### Focal Dashboard Builds
-
-The security-only `dt-compose-commons` build retains
-`dt-legacy-py38-environment` (Focal/Python 3.8) and builds PHP 7.4 Debian packages
-from source. BuildKit is required; Ubuntu Pro and a Focal Ondrej PPA are not.
-The build pins:
-
-- Signed-APT source package: `php7.4=7.4.3-4ubuntu2.29`.
-- Upstream backport: [712e60f9edfd03f0960fc4fc3c2c375f42b90aa2](https://github.com/php/php-src/commit/712e60f9edfd03f0960fc4fc3c2c375f42b90aa2).
-- Patch SHA-256: `5fe57ca6ee96d59b36c6e0ca842843c50884f177bef1e85234cf669b577f5e48`.
-- Built package revision: `7.4.3-4ubuntu2.29+duckietown1.php2shell.712e60f9`.
-
-Four upstream hunks already exist in Focal's source. The build proves those
-with reverse dry-runs and applies the remaining hunks through Debian's patch
-series, with zero fuzz. It builds CLI, FPM, common, and matching extensions
-together; APCu and memcached remain Focal packages. The guard rejects other
-custom revisions and checks the full Debian version reported by FPM against
-both installed packages.
-
-The custom packages are compiled in the `php-packages` stage of the
-security-only `dt-compose-commons` Dockerfile. Its final stage mounts that
-stage's `/build` directory and installs the generated `.deb` files directly;
-it does not download this custom revision from an APT repository. The guard
-alone does not build or install the backport. No custom package repository or
-container image has been published yet.
-
-To reproduce the package build, run this from the `dt-compose-commons`
-security branch:
+These releases fix both PHP2Shell vulnerabilities,
+[CVE-2026-109618](https://github.com/php/php-src/security/advisories/GHSA-w8hw-w9fx-j79w)
+and [CVE-2026-109619](https://github.com/php/php-src/security/advisories/GHSA-6wmf-4rv5-p3rp).
+Composer checks the actual CLI runtime after installation and updates, rather
+than trusting only its configured target platform. The image build and entrypoint also
+check the selected PHP-FPM binary and matching installed `fpm`/`common` packages;
+they fail explicitly for outdated versions, prereleases, or unreviewed branches.
+For these PHP 8 branches, the checks require the upstream fixed versions above.
+The runtime guard also recognizes the independently verified PHP 7.4 backport
+in Ondrej's Jammy/Noble PPA packages at revision `1:7.4.33-31` or later, checking
+the full installed FPM/common package revisions rather than only `PHP_VERSION`.
+It also accepts Ubuntu Focal ESM packages at `7.4.3-4ubuntu2.29+esm5` or later,
+as listed by Canonical for both CVEs, and exactly the reviewed source-built
+Focal revision `7.4.3-4ubuntu2.29+duckietown1.php2shell.712e60f9`. The latter pins
+upstream backport commit `712e60f9edfd03f0960fc4fc3c2c375f42b90aa2` over Focal's
+`php7.4=7.4.3-4ubuntu2.29` source. Unpatched Focal archive packages and
+unrecognized package forms, including arbitrary custom revisions, are rejected.
+That exception is for legacy deployments using the guard separately: this
+application and its current authentication dependencies still require PHP 8.
+Updating this guard invalidates the cached PHP installation layer.
+The debug image checks its inherited runtime too. Build the matching production
+base locally; no pre-published PHP-specific base tag is required:
 
 ```sh
-docker buildx build --load --target php-packages \
-	--build-arg ARCH=arm64v8 --build-arg DISTRO=ente \
-	--build-arg DOCKER_REGISTRY=docker.io \
-	--build-arg BASE_REPOSITORY=dt-legacy-py38-environment \
-	-t compose-php74-packages:local .
+make debug-build ARCH=arm64v8 COMPOSE_VERSION=<patched-branch-or-tag>
 ```
 
-Pass `--build-arg COMPOSE_VERSION=<security-version>` alongside the usual
-project arguments. This must resolve to the patched standalone image above.
-The inherited `1.3.5` pin predates the security guard and cannot be used for this
-build. A release must publish and pin its new security image before merging the
-downstream change. A local build may use a matching locally tagged image.
+Use `amd64` instead of `arm64v8` on x86-64. The debug image installs the matching
+PHP branch's packaged Xdebug 3 and enables debugging/profiling on request triggers.
+The target builds `duckietown/compose:debug-base-<arch>` first and consumes that
+local tag without `--pull`; the production base build still refreshes its base.
 
-Upstream describes this backport as a minimal mitigation for an EOL version.
-This is a temporary legacy measure, not continuing PHP 7.4 security support or
-a general security assurance for the legacy application dependencies. Maintaining
-the custom package and reviewing future vulnerabilities remain release-owner
-responsibilities. Do not replace a future security update with this exact old
-revision merely because it passes the current guard.
+Google Sign-In uses PHP-JWT 7 with RSA verification keys explicitly bound to
+RS256 and a minimum key size of 2048 bits. The bundled Google client and its
+Composer-managed dependencies must be deployed together; copying only an updated
+lock file does not update the checked-in libraries.
 
-Verify the rebuilt serving container with
-`check-php-security "$PHP_VERSION"`, and confirm FPM reports upload progress Off.
-ARM64 standalone, debug, retained-Focal commons, and dashboard builds have been
-validated. Isolated containers passed health, complete setup/Robot/Login HTML,
-legacy autoloading, the real PHP 7.4 socket with an empty `PHP_VERSION`, and
-HTTP 413 for oversized declared and chunked requests. AMD64, authenticated
-Files/Mission Control views, live OAuth, and robot telemetry remain unverified.
-The pinned Duckiedrone package still lacks the ROS-config endpoint script;
-`/api/ros-config` returns HTTP 404 through the working FPM socket. That separate
-package issue and architecture validation remain release gates.
+PHP2Shell patching and the PHP 8 authentication migration are separate changes.
+Legacy PHP 7.4 deployments on the reviewed Jammy/Noble PPA can receive the
+verified package backport without loading this application's PHP 8-only
+dependencies. Focal can use Ubuntu Pro ESM packages or the separately prepared,
+pinned source-build backport without Pro; a no-cache rebuild using only its
+public binary archive remains unpatched. The Focal Ondrej PPA publishes neither
+PHP 7.4 nor PHP 8.3 packages. The source backport is an upstream minimal EOL
+mitigation, not continuing PHP 7.4 security support. Neither legacy runtime
+route satisfies this application's PHP 8 requirements.
+Rebuilding with this PR's application code requires matching PHP 8 changes in
+`dt-compose-commons` and `dt-device-dashboard`, including a supported PHP 8
+package source for the retained legacy base, the copied security guard, PHP
+configuration, and FPM socket. Do not replace the Focal/Python 3.8 environment
+implicitly or bump only the compose source tag in a PHP 7.4 dashboard image.
 
-### Regression Tests
+### Authentication regression tests
 
-With PHP 7.4, Bash, Debian's `dpkg`, and PHPUnit 9.6 available:
+With patched PHP, Composer, Bash, and Debian's `dpkg` installed:
 
 ```sh
-php /path/to/phpunit-9.phar --configuration phpunit.xml.dist
+cd public_html/system/classes/google_api_php_client
+composer install
+composer test
+composer validate --strict
+composer audit --locked
+composer install --no-dev
 ```
 
-Tests live outside the web root and use controlled FPM/package responses. They
-do not install development packages into the bundled production vendor tree.
+The tests use generated test keys, mocked HTTP responses, and controlled FPM
+package/version responses; Google credentials and network access to Google's
+authentication endpoints are not required.
+The test suite and PHPUnit configuration live at the repository root, outside
+the web document root. The Composer command selects that configuration explicitly.
+The final command restores the production-only vendor tree before committing
+or deploying the bundled dependencies.
 
-The Debian package build uses `nocheck`; it does not run the full historical
-upstream suite. A separate ARM64 run of 3,009 Zend/session tests produced 2,927
-passes, 71 skips, eight expected failures, and the same three failures as the
-unmodified Focal runtime: `bug74093`, `bug74514`, and `bug74936`. No new failure
-was observed in that comparison; it is not a clean full-suite result.
+### Rebuilding after the PHP2Shell update
+
+Rebuild the intended release with refreshed packages, without reusing the old
+PHP installation cache, and select the appropriate architecture:
+
+```sh
+docker build --pull --no-cache --build-arg ARCH=amd64 \
+  --build-arg COMPOSE_VERSION=<patched-branch-or-tag> \
+  -t duckietown/compose:<new-tag> .
+```
+
+Recreate the running containers from the new image so that **every FPM worker**
+uses the patched runtime. Restarting an old image or reloading only Nginx does
+not install the fixes. Verify the serving container, rather than a separate CLI
+installation:
+
+```sh
+docker exec <container> sh -c 'check-php-security "$PHP_VERSION"'
+```
+
+Externally managed PHP installations must update their FPM/common packages and
+restart all FPM workers as well. Configuration workarounds, including disabling
+session upload progress, do not replace installing both security fixes.
+
+The image disables session upload progress in the active FPM configuration and
+limits nginx request bodies to 8 MiB, including chunked requests without a
+`Content-Length`. This matches PHP's default `post_max_size`; larger uploads are
+rejected with HTTP 413. These mitigations reduce exposure while patched runtimes
+are rolled out and do not replace the runtime guard.
 
 
 ## Architecture

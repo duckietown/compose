@@ -17,6 +17,7 @@
  */
 
 use Firebase\JWT\ExpiredException as ExpiredExceptionV3;
+use Firebase\JWT\JWK;
 use Firebase\JWT\SignatureInvalidException;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
@@ -44,6 +45,8 @@ class Google_AccessToken_Verify
    * @var Psr\Cache\CacheItemPoolInterface cache class
    */
   private $cache;
+
+  private $jwt;
 
   /**
    * Instantiates the class, but does not initiate the login flow, leaving it
@@ -82,25 +85,26 @@ class Google_AccessToken_Verify
       throw new LogicException('id_token cannot be null');
     }
 
-    // set phpseclib constants if applicable
-    $this->setPhpsecConstants();
-
     // Check signature
     $certs = $this->getFederatedSignOnCerts();
     foreach ($certs as $cert) {
-      $bigIntClass = $this->getBigIntClass();
-      $rsaClass = $this->getRsaClass();
-      $modulus = new $bigIntClass($this->jwt->urlsafeB64Decode($cert['n']), 256);
-      $exponent = new $bigIntClass($this->jwt->urlsafeB64Decode($cert['e']), 256);
-
-      $rsa = new $rsaClass();
-      $rsa->loadKey(array('n' => $modulus, 'e' => $exponent));
+      $key = JWK::parseKey(array(
+        'kty' => 'RSA',
+        'alg' => 'RS256',
+        'n' => $cert['n'],
+        'e' => $cert['e'],
+      ));
 
       try {
+        // Enforce the signing-key minimum on verification keys too (CVE-2025-45769).
+        $details = openssl_pkey_get_details($key->getKeyMaterial());
+        if ($details === false || $details['bits'] < 2048) {
+          throw new DomainException('RSA verification keys must contain at least 2048 bits');
+        }
+
         $payload = $this->jwt->decode(
             $idToken,
-            $rsa->getPublicKey(),
-            array('RS256')
+            $key
         );
 
         if (property_exists($payload, 'aud')) {
@@ -219,54 +223,4 @@ class Google_AccessToken_Verify
     return new $jwtClass;
   }
 
-  private function getRsaClass()
-  {
-    if (class_exists('phpseclib\Crypt\RSA')) {
-      return 'phpseclib\Crypt\RSA';
-    }
-
-    return 'Crypt_RSA';
-  }
-
-  private function getBigIntClass()
-  {
-    if (class_exists('phpseclib\Math\BigInteger')) {
-      return 'phpseclib\Math\BigInteger';
-    }
-
-    return 'Math_BigInteger';
-  }
-
-  private function getOpenSslConstant()
-  {
-    if (class_exists('phpseclib\Crypt\RSA')) {
-      return 'phpseclib\Crypt\RSA::MODE_OPENSSL';
-    }
-
-    if (class_exists('Crypt_RSA')) {
-      return 'CRYPT_RSA_MODE_OPENSSL';
-    }
-
-    throw new \Exception('Cannot find RSA class');
-  }
-
-  /**
-   * phpseclib calls "phpinfo" by default, which requires special
-   * whitelisting in the AppEngine VM environment. This function
-   * sets constants to bypass the need for phpseclib to check phpinfo
-   *
-   * @see phpseclib/Math/BigInteger
-   * @see https://github.com/GoogleCloudPlatform/getting-started-php/issues/85
-   */
-  private function setPhpsecConstants()
-  {
-    if (filter_var(getenv('GAE_VM'), FILTER_VALIDATE_BOOLEAN)) {
-      if (!defined('MATH_BIGINTEGER_OPENSSL_ENABLED')) {
-        define('MATH_BIGINTEGER_OPENSSL_ENABLED', true);
-      }
-      if (!defined('CRYPT_RSA_MODE')) {
-        define('CRYPT_RSA_MODE', constant($this->getOpenSslConstant()));
-      }
-    }
-  }
 }

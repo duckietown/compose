@@ -173,7 +173,7 @@ SH
       '8.3 below floor, despite patched CLI' => ['8.3', ['TEST_FPM_OUTPUT' => 'PHP 8.3.35 (fpm-fcgi)'], 'below 8.3.36'],
       '8.4 below floor' => ['8.4', ['TEST_FPM_OUTPUT' => 'PHP 8.4.26 (fpm-fcgi)'], 'below 8.4.27'],
       '8.5 below floor' => ['8.5', ['TEST_FPM_OUTPUT' => 'PHP 8.5.11 (fpm-fcgi)'], 'below 8.5.12'],
-      'unreviewed branch' => ['8.2', [], 'Unsupported PHP branch'],
+      '8.2 is incompatible with the application' => ['8.2', [], 'Unsupported PHP branch'],
       'unreviewed future branch' => ['8.6', [], 'Unsupported PHP branch'],
       'malformed branch' => ['8.3.36', [], 'Unsupported PHP branch'],
       'prerelease binary' => ['8.3', ['TEST_FPM_OUTPUT' => 'PHP 8.3.36RC1 (fpm-fcgi)'], 'Expected a stable'],
@@ -200,7 +200,6 @@ SH
   {
     $root = dirname(__DIR__);
     $dockerfile = file_get_contents($root . '/Dockerfile');
-    self::assertStringContainsString('ARG PHP_VERSION=7.4', $dockerfile);
     $copy = strpos($dockerfile, 'COPY --chmod=755 assets/check-php-security.sh /usr/local/bin/check-php-security');
     $install = strpos($dockerfile, 'RUN add-apt-repository');
     self::assertNotFalse($copy);
@@ -212,31 +211,40 @@ SH
     self::assertStringContainsString('&& check-php-security "${PHP_VERSION}"', $installationLayer);
 
     $entrypoint = file_get_contents($root . '/assets/entrypoint.sh');
-    $check = strpos($entrypoint, 'check-php-security "${PHP_VERSION:-7.4}"');
-    $start = strpos($entrypoint, 'sudo -E /etc/init.d/php${PHP_VERSION:-7.4}-fpm start');
+    $check = strpos($entrypoint, 'check-php-security "${PHP_VERSION:-8.3}"');
+    $start = strpos($entrypoint, 'sudo -E /etc/init.d/php${PHP_VERSION:-8.3}-fpm start');
     self::assertNotFalse($check);
     self::assertNotFalse($start);
     self::assertLessThan($start, $check);
   }
 
-  public function testDebugImageChecksItsMatchingLocalRuntime(): void
+  public function testDebugImageChecksItsInheritedRuntime(): void
   {
-    $root = dirname(__DIR__);
-    $dockerfile = file_get_contents($root . '/Dockerfile.debug');
+    $dockerfile = file_get_contents(dirname(__DIR__) . '/Dockerfile.debug');
+    $copy = strpos($dockerfile, 'COPY --chmod=755 assets/check-php-security.sh /usr/local/bin/check-php-security');
+    $check = strpos($dockerfile, 'RUN check-php-security "${PHP_VERSION:-8.3}"');
+    $install = strpos($dockerfile, 'RUN apt-get update');
+
+    self::assertNotFalse($copy);
+    self::assertNotFalse($check);
+    self::assertNotFalse($install);
+    self::assertLessThan($check, $copy);
+    self::assertLessThan($install, $check);
+    self::assertStringContainsString('COPY assets/entrypoint.sh /entrypoint.sh', $dockerfile);
+    self::assertStringContainsString('ENTRYPOINT ["/entrypoint.sh"]', $dockerfile);
     self::assertStringContainsString('ARG BASE_VERSION=debug-base', $dockerfile);
     self::assertStringContainsString('FROM ${BASE_ORGANIZATION}/compose:', $dockerfile);
-    self::assertStringContainsString('RUN check-php-security "${PHP_VERSION:-7.4}"', $dockerfile);
     self::assertStringContainsString('php${PHP_VERSION}-xdebug', $dockerfile);
     self::assertStringNotContainsString('xdebug-2.4.1', $dockerfile);
     self::assertStringContainsString('phpenmod -v "${PHP_VERSION}" compose-xdebug', $dockerfile);
 
-    $makefile = file_get_contents($root . '/Makefile');
+    $makefile = file_get_contents(dirname(__DIR__) . '/Makefile');
     self::assertStringContainsString('$(MAKE) build VERSION=debug-base TAG=debug-base EXTRA_TAG= COMPOSE_VERSION=${COMPOSE_VERSION}', $makefile);
     self::assertStringContainsString('BASE_VERSION=debug-base', $makefile);
     self::assertMatchesRegularExpression('/^\s*PULL=\s*\\\\$/m', $makefile);
   }
 
-  public function testActivePhpConfigurationAndRequestLimit(): void
+  public function testStandaloneImageLoadsPhpSettingsAndInstallsSudo(): void
   {
     $root = dirname(__DIR__);
     $dockerfile = file_get_contents($root . '/Dockerfile');
@@ -245,10 +253,48 @@ SH
     self::assertStringContainsString('/etc/php/${PHP_VERSION}/mods-available/apcu.ini', $dockerfile);
     self::assertStringContainsString('/etc/php/${PHP_VERSION}/mods-available/compose-log-errors.ini', $dockerfile);
     self::assertStringContainsString('phpenmod -v "${PHP_VERSION}" apcu compose-log-errors', $dockerfile);
-    self::assertStringContainsString('session.upload_progress.enabled = 0', $dockerfile);
+  }
+
+  public function testImageMitigatesPhpUploadProgressRequests(): void
+  {
+    $root = dirname(__DIR__);
+    $dockerfile = file_get_contents($root . '/Dockerfile');
+    self::assertStringContainsString("session.upload_progress.enabled = 0", $dockerfile);
     self::assertStringContainsString('/etc/php/${PHP_VERSION}/fpm/conf.d/99-compose-security.ini', $dockerfile);
     self::assertMatchesRegularExpression('/^\s*client_max_body_size 8m;/m', file_get_contents($root . '/assets/etc/nginx/default'));
-    self::assertStringContainsString('fastcgi_pass unix:/run/php/php7.4-fpm.sock;', file_get_contents($root . '/assets/etc/nginx/default'));
+  }
+
+  public function testComposerChecksTheActualRuntimeAfterDependencyResolution(): void
+  {
+    $manifest = json_decode(
+        file_get_contents(dirname(__DIR__) . '/public_html/system/classes/google_api_php_client/composer.json'),
+        true,
+        512,
+        JSON_THROW_ON_ERROR
+    );
+
+    self::assertSame('@composer check-platform-reqs', $manifest['scripts']['post-install-cmd']);
+    self::assertSame('@composer check-platform-reqs', $manifest['scripts']['post-update-cmd']);
+  }
+
+  public function testImageChecksBundledApplicationPlatformAfterCheckout(): void
+  {
+    $dockerfile = file_get_contents(dirname(__DIR__) . '/Dockerfile');
+    $checkout = strpos($dockerfile, 'checkout "${COMPOSE_VERSION}"');
+    $check = strpos($dockerfile, 'check-platform-reqs --no-dev');
+    self::assertNotFalse($checkout);
+    self::assertNotFalse($check);
+    self::assertLessThan($check, $checkout);
+    self::assertStringContainsString('composer --working-dir="${COMPOSE_DIR}/public_html/system/classes/google_api_php_client"', $dockerfile);
+  }
+
+  public function testRegressionTestsStayOutsideTheWebRoot(): void
+  {
+    $root = dirname(__DIR__);
+    self::assertDirectoryDoesNotExist($root . '/public_html/system/classes/google_api_php_client/tests');
+    self::assertFileDoesNotExist($root . '/public_html/system/classes/google_api_php_client/phpunit.xml.dist');
+    self::assertFileExists($root . '/tests/JwtVerificationTest.php');
+    self::assertFileExists($root . '/phpunit.xml.dist');
   }
 
   private function command(string $name, string $script): void

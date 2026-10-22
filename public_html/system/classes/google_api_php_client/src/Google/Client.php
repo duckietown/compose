@@ -24,8 +24,6 @@ use Google\Auth\Credentials\ServiceAccountCredentials;
 use Google\Auth\Credentials\UserRefreshCredentials;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Ring\Client\StreamHandler;
-use GuzzleHttp\Psr7;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Log\LoggerInterface;
@@ -1037,25 +1035,10 @@ class Google_Client
 
   protected function createDefaultHttpClient()
   {
-    $options = ['exceptions' => false];
-
-    $version = ClientInterface::VERSION;
-    if ('5' === $version[0]) {
-      $options = [
-        'base_url' => $this->config['base_path'],
-        'defaults' => $options,
-      ];
-      if ($this->isAppEngine()) {
-        // set StreamHandler on AppEngine by default
-        $options['handler']  = new StreamHandler();
-        $options['defaults']['verify'] = '/etc/ca-certificates.crt';
-      }
-    } else {
-      // guzzle 6
-      $options['base_uri'] = $this->config['base_path'];
-    }
-
-    return new Client($options);
+    return new Client([
+      'base_uri' => $this->config['base_path'],
+      'http_errors' => false,
+    ]);
   }
 
   private function createApplicationDefaultCredentials()
