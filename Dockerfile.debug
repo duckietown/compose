@@ -4,6 +4,11 @@ ARG BASE_VERSION=php8.3
 
 FROM ${BASE_ORGANIZATION}/compose:${BASE_VERSION}-${ARCH}
 
+COPY --chmod=755 assets/check-php-security.sh /usr/local/bin/check-php-security
+RUN check-php-security "${PHP_VERSION:-8.3}"
+COPY assets/entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+
 # install dependencies, then clean the apt cache
 RUN apt-get update \
   && apt-get install -y \

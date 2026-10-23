@@ -12,8 +12,12 @@ The Google API Client Library enables you to work with Google APIs such as Googl
 This library is in Beta. We're comfortable enough with the stability and features of the library that we want you to build real production applications on it. We will make an effort to support the public and protected surface of the library and maintain backwards compatibility in the future. While we are still in Beta, we reserve the right to make incompatible changes.
 
 ## Requirements ##
-* [PHP 8.3 or higher](https://www.php.net/)
+* [PHP 8.3.36+, 8.4.27+, or 8.5.12+](https://www.php.net/)
 * The OpenSSL extension
+
+These PHP patch floors include both PHP2Shell security fixes
+(CVE-2026-109618 and CVE-2026-109619). Composer enforces them during installation;
+the Docker image additionally checks the actual serving FPM binary and packages.
 
 ## Bundled authentication compatibility ##
 

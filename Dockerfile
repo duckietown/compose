@@ -50,10 +50,14 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 # PHP modules
+# Changing the guard also invalidates the cached PHP installation layer.
+COPY --chmod=755 assets/check-php-security.sh /usr/local/bin/check-php-security
 RUN add-apt-repository -y ppa:ondrej/php && \
+    apt-get update && \
     apt-get install --no-install-recommends --yes \
         php${PHP_VERSION}-apcu \
         php${PHP_VERSION}-cli \
+        php${PHP_VERSION}-common \
         php${PHP_VERSION}-fpm \
         php${PHP_VERSION}-mysql \
         php${PHP_VERSION}-curl \
@@ -65,6 +69,7 @@ RUN add-apt-repository -y ppa:ondrej/php && \
         php${PHP_VERSION}-xml \
         php${PHP_VERSION}-soap \
         php${PHP_VERSION}-mbstring \
+    && check-php-security "${PHP_VERSION}" \
     && rm -rf /var/lib/apt/lists/*
 
 # configure nginx and php-fpm

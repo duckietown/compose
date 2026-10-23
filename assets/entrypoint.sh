@@ -17,6 +17,8 @@ COMPOSE_USERDATA_DIR=$(realpath -s "${COMPOSE_USERDATA_DIR}")
 # from this point on, if something goes wrong, exit
 set -e
 
+check-php-security "${PHP_VERSION:-8.3}"
+
 # get GID of the compose dir
 GID=$(stat -c %g "${COMPOSE_USERDATA_DIR}")
 GNAME='compose'
