@@ -214,7 +214,7 @@ class BlockRenderer{
                   ];
                   if ($desc['type'] == 'enum') {
                     $layout_desc['placeholder_id'] = $desc['enum_values'];
-                    $layout_desc['placeholder'] = array_map(ucfirst, $desc['enum_values']);
+                    $layout_desc['placeholder'] = array_map('ucfirst', $desc['enum_values']);
                   }
                   // add item to the layout
                   $layout[$layout_key] = $layout_desc;
@@ -223,7 +223,7 @@ class BlockRenderer{
                 $formClass = 'mission-control-block-properties-form';
                 $method = 'post';
                 // generate form
-                generateFormByLayout($layout, $formID, $formClass, $method, $action=null, $values=$args);
+                generateFormByLayout($layout, $formID, $formClass, $method, null, $args);
                 ?>
               </div>
 
@@ -280,7 +280,7 @@ class BlockRenderer{
     <?php
   }//render
 
-  final public function get_default_JSON(){
+  final public static function get_default_JSON(){
     $json_str = sprintf('
       {
         "shape": %s,
@@ -303,7 +303,7 @@ class BlockRenderer{
     return sprintf('%s %s-%s', static::$ICON['class'], static::$ICON['class'], static::$ICON['name']);
   }//get_icon_class
 
-  final public function is_private(){
+  final public static function is_private(){
     return boolval(static::$PRIVATE);
   }//is_private
 

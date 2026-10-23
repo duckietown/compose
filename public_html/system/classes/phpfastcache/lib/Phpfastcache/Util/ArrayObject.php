@@ -38,7 +38,7 @@ class ArrayObject implements \ArrayAccess, \Iterator, \Countable
     /**
      * @return mixed
      */
-    public function current()
+    public function current(): mixed
     {
         return $this->array[$this->position];
     }
@@ -46,7 +46,7 @@ class ArrayObject implements \ArrayAccess, \Iterator, \Countable
     /**
      *
      */
-    public function next()
+    public function next(): void
     {
         ++$this->position;
     }
@@ -70,7 +70,7 @@ class ArrayObject implements \ArrayAccess, \Iterator, \Countable
     /**
      *
      */
-    public function rewind()
+    public function rewind(): void
     {
         $this->position = 0;
     }
@@ -96,7 +96,7 @@ class ArrayObject implements \ArrayAccess, \Iterator, \Countable
      * @param mixed $offset
      * @return mixed|null
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->array[$offset] ?? null;
     }
@@ -105,7 +105,7 @@ class ArrayObject implements \ArrayAccess, \Iterator, \Countable
      * @param mixed $offset
      * @param mixed $value
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         // NOTE: THIS IS THE FIX FOR THE ISSUE "Indirect modification of overloaded element of SplFixedArray has no effect"
         // NOTE: WHEN APPENDING AN ARRAY (E.G. myArr[] = 5) THE KEY IS NULL, SO WE TEST FOR THIS CONDITION BELOW, AND VOILA
@@ -120,7 +120,7 @@ class ArrayObject implements \ArrayAccess, \Iterator, \Countable
     /**
      * @param mixed $offset
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->array[$offset]);
     }

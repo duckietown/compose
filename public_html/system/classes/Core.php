@@ -493,14 +493,14 @@ class Core {
         // remove pkg_id level if pkg_id is given
         $out = $modules;
         if (!is_null($pkg_id)) {
-            $out = $modules[$pkg_id];
+            $out = $modules[$pkg_id] ?? [];
             if (!is_null($module_family)) {
-                $out = $out[$module_family];
+                $out = $out[$module_family] ?? [];
             }
         } else if (!is_null($module_family)) {
             $out = [];
             foreach ($modules as $pkg => &$mods) {
-                if (count($mods[$module_family]) > 0) {
+                if (!empty($mods[$module_family])) {
                     $out[$pkg] = $mods[$module_family];
                 }
             }
@@ -2745,7 +2745,7 @@ class Core {
      *
      * @return array
      */
-    function _dep_solve_dependencies_graph($item, array $items, array $resolved, array $unresolved) {
+    public static function _dep_solve_dependencies_graph($item, array $items, array $resolved, array $unresolved) {
         array_push($unresolved, $item);
         if (!array_key_exists($item, $items)) {
             return [$resolved, $unresolved];
