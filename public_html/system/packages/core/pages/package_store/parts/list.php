@@ -68,7 +68,7 @@ $installed_packages = Core::getPackagesList();
     #packages-table > tbody .compose-package > td:nth-child(4) .disabled-button {
         background-image: none;
         background-color: grey;
-        border: 1px solid lightgray;
+        border: 1px solid var(--r-border, lightgray);
     }
 
     #packages-table > tbody .compose-package.to-be-installed {
@@ -208,8 +208,8 @@ if (is_null($compose_version)) {
       {0}
       <br/>
     </strong>
-    ID: <span class="mono" style="color:grey">{1}</span><br/>
-    Maintainer: <span class="mono" style="color:grey">{2}</span><br/>
+    ID: <span class="mono" style="color:var(--r-muted, grey)">{1}</span><br/>
+    Maintainer: <span class="mono" style="color:var(--r-muted, grey)">{2}</span><br/>
     {4}<br/>
     <div style="margin-top:4px">
       {3}

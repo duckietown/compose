@@ -158,7 +158,7 @@ class ComposeFormFieldSwitch {
             type="checkbox"
             data-toggle="toggle"
             data-onstyle="primary"
-            data-offstyle="warning"
+            data-offstyle="default"
             data-class="fast"
             data-size="normal"
             name="{key}"

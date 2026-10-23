@@ -35,6 +35,12 @@ class SmartForm {
                 // create form
                 let form = new ComposeForm(null, schema, formID);
                 form.render('#<?php echo $this->formID ?>', values);
+                if (window.DuckietownUI && typeof DuckietownUI.convertBooleanRadios === 'function') {
+                    let root = document.getElementById(formID);
+                    if (root && (root.closest('.dt-form') || root.closest('.robot-settings') || root.closest('.dt-settings'))) {
+                        DuckietownUI.convertBooleanRadios(root);
+                    }
+                }
             });
         </script>
         <?php

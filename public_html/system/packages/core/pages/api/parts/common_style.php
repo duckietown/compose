@@ -2,7 +2,7 @@
     .api-service-section{
         padding-top: 54px;
         padding-bottom: 8px;
-        border-bottom: 1px solid rgba(230, 230, 230, 0.6);
+        border-bottom: 1px solid var(--r-border, rgba(230, 230, 230, 0.6));
     }
 
     .api-service-section > h3{

@@ -8,7 +8,7 @@ class Section{
 		//
 		echo '<ul class="nav nav-tabs">
 			<li role="presentation" class="active" style="margin-left:10px; font-size:12pt"><a>'.$name.'</a></li>'.
-			( ( $cmdName !== null )? '<li role="presentation" style="margin-left:10px"><a '. ( (strpos($cmdExtra, 'href') === false)? 'href="#" '.$cmdExtra : $cmdExtra ) .' style="background-color:lightskyblue; color:#ffffff"><span class="glyphicon '.$cmdGlyph.'" aria-hidden="true"></span>&nbsp; '.$cmdName.'</a></li>' : '' );
+			( ( $cmdName !== null )? '<li role="presentation" style="margin-left:10px"><a '. ( (strpos($cmdExtra, 'href') === false)? 'href="#" '.$cmdExtra : $cmdExtra ) .' style="background-color:var(--r-fill, lightskyblue); color:var(--r-on-fill, #ffffff)"><span class="glyphicon '.$cmdGlyph.'" aria-hidden="true"></span>&nbsp; '.$cmdName.'</a></li>' : '' );
 
 		if( $actionNameList !== null ){
 			echo '<li role="presentation" class="dropdown pull-right">
@@ -23,11 +23,11 @@ class Section{
 		}
 
 		echo '</ul>';
-		echo '<div style="width:100%; border-bottom:1px solid #ddd; padding:20px; background-color:white">';
+		echo '<div style="width:100%; border-bottom:1px solid var(--r-border, #ddd); padding:20px; background-color:var(--r-card, white); color:var(--r-text, inherit)">';
 	}//begin
 
 	public static function end( $footerMsg = null ){
-		echo ($footerMsg !== null) ? '<h6 class="text-right" style="padding-right:30px; margin-top:10px; border-top:1px dashed lightgrey; padding-top:10px; margin-bottom:0">'.$footerMsg.'</h6>' : '';
+		echo ($footerMsg !== null) ? '<h6 class="text-right" style="padding-right:30px; margin-top:10px; border-top:1px dashed var(--r-border, lightgrey); padding-top:10px; margin-bottom:0">'.$footerMsg.'</h6>' : '';
 		echo '</div>';
 	}//end
 

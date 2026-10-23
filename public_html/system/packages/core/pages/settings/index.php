@@ -15,41 +15,9 @@ if (isset($_GET['base_update']) && boolval($_GET['base_update'])) {
 ?>
 
 <style type="text/css">
-
-	.panel-default > .panel-heading{
-		text-shadow: 0 1px 0 #fff;
-	    background-image: -webkit-linear-gradient(top, #fff 0%, #e0e0e0 100%);
-	    background-image:      -o-linear-gradient(top, #fff 0%, #e0e0e0 100%);
-	    background-image: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#e0e0e0));
-	    background-image:         linear-gradient(to bottom, #fff 0%, #e0e0e0 100%);
-	    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffe0e0e0', GradientType=0);
-	    filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
-	    background-repeat: repeat-x;
-	    border-color: #dbdbdb;
-	    border-color: #ccc;
-	}
-
-	.panel-default > .panel-heading > a{
-		color: inherit;
-		text-decoration: none;
-	}
-
-	.panel-group .panel{
-		border: 1px solid #d8d7d7;
-	}
-
-	.panel-group .panel .panel-heading{
-		border-bottom: 1px solid #d8d7d7;
-	}
-
-	.panel-group .panel .panel-body{
-		padding: 30px 40px;
-	}
-
 	.text-color-red{
-		color: #e63838;
+		color: var(--r-bad, #b91c1c);
 	}
-
 </style>
 
 
@@ -73,103 +41,122 @@ $settings_tabs = [
     // [0-20] reserved for \compose\ tabs
     0 => [
         'id' => 'general',
-        'title' => 'General',
+        'title' => 'Dashboard',
         'icon' => 'fa fa-sliders',
         'content' => settings_custom_package_tab,
         'content_args' => ['core', Core::getPackageSettings('core')]
     ],
-    1 => [
+];
+
+$developer_mode = (bool) Core::getSetting('developer_mode', 'core', false);
+
+if ($developer_mode) {
+    $settings_tabs[1] = [
         'id' => 'packages',
         'title' => 'Packages',
         'icon' => 'fa fa-cubes',
         'content' => settings_packages_tab,
         'content_args' => null
-    ],
-    2 => [
+    ];
+    $settings_tabs[2] = [
         'id' => 'pages',
         'title' => 'Pages',
         'icon' => 'fa fa-file-text-o',
         'content' => settings_pages_tab,
         'content_args' => null
-    ],
-    3 => [
+    ];
+    $settings_tabs[3] = [
         'id' => 'api',
         'title' => 'API End-points',
         'icon' => 'fa fa-sitemap',
         'content' => settings_api_tab,
         'content_args' => null
-    ],
-    4 => [
+    ];
+    $settings_tabs[4] = [
         'id' => 'roles',
         'title' => 'User roles',
         'icon' => 'fa fa-users',
         'content' => settings_user_roles_tab,
         'content_args' => null
-    ],
-    10 => [
+    ];
+    $settings_tabs[10] = [
         'id' => 'theme',
         'title' => 'Theme',
         'icon' => 'fa fa-paint-brush',
         'content' => settings_theme_tab,
         'content_args' => null
-    ],
-
+    ];
     // [21-100] reserved for packages
-
     // [101-400] free to use
-
     // #501 reserved for cache tab
-
     // [502-600] reserved for \compose\ tabs
-    502 => [
+    $settings_tabs[502] = [
         'id' => 'php',
         'title' => 'PHP Info',
         'icon' => 'fa fa-server',
         'content' => settings_phpinfo_tab,
         'content_args' => null
-    ],
-    580 => [
+    ];
+    $settings_tabs[580] = [
         'id' => 'codebase',
         'title' => 'Codebase',
         'icon' => 'fa fa-code',
         'content' => settings_codebase_tab,
         'content_args' => null
-    ]
-];
-
-if( Cache::enabled() ){
-    // add cache tab if the flag is active
-    $settings_tabs[501] = [
-        'id' => 'cache',
-        'title' => 'Cache',
-        'icon' => 'fa fa-history',
-        'content' => settings_cache_tab,
-        'content_args' => null
     ];
-}
 
-$i = 21;
-foreach (Core::getPackagesList() as $pkg_id => $pkg) {
-    if ($pkg_id == 'core') continue;
-    $pkg_setts = Core::getPackageSettings($pkg_id);
-    // skip package if it is not configurable
-    if (!$pkg_setts['data'] instanceof EditableConfiguration ||
-        !$pkg_setts['data']->is_configurable()){
-        continue;
+    if( Cache::enabled() ){
+        // add cache tab if the flag is active
+        $settings_tabs[501] = [
+            'id' => 'cache',
+            'title' => 'Cache',
+            'icon' => 'fa fa-history',
+            'content' => settings_cache_tab,
+            'content_args' => null
+        ];
     }
-    // render package-specific tab
-    $settings_tabs[$i] = [
-        'id' => 'package_'.$pkg_id,
-        'title' => 'Package: <b>'.$pkg['name'].'</b>',
-        'icon' => 'fa fa-cube',
-        'content' => settings_custom_package_tab,
-        'content_args' => [$pkg_id, $pkg_setts]
+
+    $i = 21;
+    $package_tab_titles = [
+        'data' => 'Mission Control storage',
+        'duckietown' => 'Duckietown Hub',
+        'duckietown_duckiebot' => 'Robot dashboard APIs',
+        'duckietown_duckiedrone' => 'Duckiedrone',
+        'duckietown_ros' => 'Duckietown ROS',
+        'portainer' => 'Portainer connection',
+        'ros' => 'ROS API',
+        'elfinder' => 'File Manager',
+        'vscode' => 'Code Editor',
     ];
-    // ---
-    $i += 1;
+    foreach (Core::getPackagesList() as $pkg_id => $pkg) {
+        if ($pkg_id == 'core') continue;
+        $pkg_setts = Core::getPackageSettings($pkg_id);
+        // skip package if it is not configurable
+        if (!$pkg_setts['data'] instanceof EditableConfiguration ||
+            !$pkg_setts['data']->is_configurable()){
+            continue;
+        }
+        $title = isset($package_tab_titles[$pkg_id])
+            ? $package_tab_titles[$pkg_id]
+            : ('Package: <b>'.$pkg['name'].'</b>');
+        // render package-specific tab
+        $settings_tabs[$i] = [
+            'id' => 'package_'.$pkg_id,
+            'title' => $title,
+            'icon' => 'fa fa-cube',
+            'content' => settings_custom_package_tab,
+            'content_args' => [$pkg_id, $pkg_setts]
+        ];
+        // ---
+        $i += 1;
+    }
 }
 ?>
 
+<div class="dt-page dt-settings dt-form">
+<p class="robot-hint"><?php echo $developer_mode
+    ? 'Dashboard Settings control this website. Operator options are in the first panel; developer sections follow.'
+    : 'Dashboard Settings control this website. Turn on Developer mode to see advanced dashboard options.'; ?></p>
 <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
     <?php
     $tab_idxs = array_keys($settings_tabs);
@@ -187,8 +174,8 @@ foreach (Core::getPackagesList() as $pkg_id => $pkg) {
                         &nbsp;
                         <?php echo $settings_tab['title'] ?>
                         <!--  -->
-                        <span id="<?php echo $settings_tab['id'] ?>_unsaved_changes_mark" style="float:right; color:darkorange; font-size:11pt; display:none">
-                            Unsaved changes &nbsp;
+                        <span id="<?php echo $settings_tab['id'] ?>_unsaved_changes_mark" class="dt-unsaved" style="display:none">
+                            Unsaved changes
                             <span class="fa fa-exclamation-triangle" aria-hidden="true"></span>
                         </span>
                     </h4>
@@ -205,6 +192,7 @@ foreach (Core::getPackagesList() as $pkg_id => $pkg) {
         <?php
     }
     ?>
+</div>
 </div>
 
 <script type="text/javascript">

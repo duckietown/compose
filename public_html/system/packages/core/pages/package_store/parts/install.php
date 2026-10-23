@@ -267,7 +267,7 @@ foreach ($actions as $action) {
                 <?php
                 foreach ($data as $package_id) {
                     $package_name = $index['packages'][$package_id]['name'];
-                    echo sprintf('<h5>&bullet; %s (<span class="mono" style="color:grey">%s</span>)</h5>',
+                    echo sprintf('<h5>&bullet; %s (<span class="mono" style="color:var(--r-muted, grey)">%s</span>)</h5>',
                         $package_name,
                         $package_id
                     );
@@ -279,7 +279,7 @@ foreach ($actions as $action) {
                         <?php
                         foreach (array_diff($data_full, $data) as $package_id) {
                             $package_name = $index['packages'][$package_id]['name'];
-                            echo sprintf('<h5>&bullet; %s (<span class="mono" style="color:grey">%s</span>)</h5>',
+                            echo sprintf('<h5>&bullet; %s (<span class="mono" style="color:var(--r-muted, grey)">%s</span>)</h5>',
                                 $package_name,
                                 $package_id
                             );

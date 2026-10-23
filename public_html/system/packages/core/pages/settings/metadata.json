@@ -1,8 +1,8 @@
 {
-    "name" : "Settings",
+    "name" : "Dashboard Settings",
     "package" : "core",
     "menu_entry" : {
-        "order" : 5,
+        "order" : 3,
         "icon" : {
             "class" : "glyphicon",
             "name" : "cog"
