@@ -5,7 +5,7 @@ ARG BASE_VERSION=debug-base
 FROM ${BASE_ORGANIZATION}/compose:${BASE_VERSION}-${ARCH}
 
 COPY --chmod=755 assets/check-php-security.sh /usr/local/bin/check-php-security
-RUN check-php-security "${PHP_VERSION:-7.4}"
+RUN check-php-security "${PHP_VERSION:-8.3}"
 COPY assets/entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
@@ -25,6 +25,7 @@ COPY assets.debug/git_config "${COMPOSE_DIR}/.git/config"
 # install WebGrind to visualize the profiler data
 RUN git clone --depth 1 https://github.com/jokkedk/webgrind.git $COMPOSE_DIR/public_html/webgrind/
 
+# install Xdebug for the selected PHP branch
 RUN apt-get update && \
   apt-get install -y --no-install-recommends php${PHP_VERSION}-xdebug && \
   rm -rf /var/lib/apt/lists/*

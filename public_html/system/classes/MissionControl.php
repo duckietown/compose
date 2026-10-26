@@ -799,7 +799,7 @@ class MissionControlConfiguration {
                             ];
                             if ($opt['type'] == 'enum') {
                                 $layout_desc['placeholder_id'] = $opt['enum_values'];
-                                $layout_desc['placeholder'] = array_map(ucfirst, $opt['enum_values']);
+                                $layout_desc['placeholder'] = array_map('ucfirst', $opt['enum_values']);
                             }
                             // add item to the layout
                             $layout[$layout_key] = $layout_desc;
@@ -808,7 +808,7 @@ class MissionControlConfiguration {
                         $formClass = 'mission-properties-form';
                         $method = 'post';
                         // generate form
-                        generateFormByLayout($layout, $formID, $formClass, $method, $action = NULL, $values = $opts);
+                        generateFormByLayout($layout, $formID, $formClass, $method, NULL, $opts);
                         ?>
                     </div>
 

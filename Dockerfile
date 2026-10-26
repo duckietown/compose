@@ -1,5 +1,5 @@
 ARG ARCH=amd64
-ARG PHP_VERSION=7.4
+ARG PHP_VERSION=8.3
 ARG OS_FAMILY=ubuntu
 ARG OS_DISTRO=jammy
 ARG COMPOSE_VERSION=stable
@@ -50,9 +50,10 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 # PHP modules
+# Changing the guard also invalidates the cached PHP installation layer.
 COPY --chmod=755 assets/check-php-security.sh /usr/local/bin/check-php-security
 RUN add-apt-repository -y ppa:ondrej/php && \
-  apt-get update && \
+    apt-get update && \
     apt-get install --no-install-recommends --yes \
         php${PHP_VERSION}-apcu \
         php${PHP_VERSION}-cli \
@@ -68,7 +69,7 @@ RUN add-apt-repository -y ppa:ondrej/php && \
         php${PHP_VERSION}-xml \
         php${PHP_VERSION}-soap \
         php${PHP_VERSION}-mbstring \
-      && check-php-security "${PHP_VERSION}" \
+    && check-php-security "${PHP_VERSION}" \
     && rm -rf /var/lib/apt/lists/*
 
 # configure nginx and php-fpm
@@ -99,6 +100,7 @@ RUN cp /usr/local/etc/php/conf.d/apcu.ini /etc/php/${PHP_VERSION}/mods-available
 
 # copy nginx configuration file
 ADD assets/etc/nginx/default /etc/nginx/sites-available/default
+RUN sed -i "s/php8.3-fpm.sock/php${PHP_VERSION}-fpm.sock/g" /etc/nginx/sites-available/default
 
 # copy SHA of the current commit. This has two effects:
 # - stores the SHA of the commit from which the image was built
@@ -120,6 +122,9 @@ RUN rretry \
 # fetch tags and checkout the wanted version
 RUN git -C "${COMPOSE_DIR}" fetch --tags && \
     git -C "${COMPOSE_DIR}" checkout "${COMPOSE_VERSION}"
+
+RUN composer --working-dir="${COMPOSE_DIR}/public_html/system/classes/google_api_php_client" \
+  check-platform-reqs --no-dev
 
 # give ownership to the user
 RUN chown -R ${COMPOSE_USER}:${COMPOSE_USER} "${APP_DIR}" "${COMPOSE_USERDATA_DIR}" "${COMPOSE_METADATA_DIR}"

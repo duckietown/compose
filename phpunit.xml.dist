@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit cacheResult="false" convertDeprecationsToExceptions="true" failOnWarning="true">
+<phpunit bootstrap="public_html/system/classes/google_api_php_client/vendor/autoload.php" cacheResult="false"
+         convertDeprecationsToExceptions="true" failOnWarning="true">
     <testsuites>
-        <testsuite name="runtime-security">
+        <testsuite name="authentication-compatibility">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
