@@ -27,13 +27,15 @@ IMAGE_SHA=$(shell docker -H=${H} inspect --format="{{index .Id}}" "${IMAGE}:${VE
 GIT_SHA=$(shell git rev-parse HEAD || :)
 DOCKERFILE=Dockerfile
 COMPOSE_VERSION=${VERSION}
+PULL=--pull
 
 debug-build:
-	$(MAKE) build
+	$(MAKE) build VERSION=debug-base TAG=debug-base EXTRA_TAG= COMPOSE_VERSION=${COMPOSE_VERSION}
 	$(MAKE) build \
 		DOCKERFILE=Dockerfile.debug \
 		COMPOSE_VERSION=devel \
-		BASE_VERSION=devel \
+		BASE_VERSION=debug-base \
+		PULL= \
 		VERSION=debug \
 		TAG=debug \
 		EXTRA_TAG=
@@ -41,7 +43,7 @@ debug-build:
 build:
 	docker -H=${H} buildx build \
 		--platform=linux/${PLATFORM_ARCH} \
-		--pull \
+		${PULL} \
 		--load \
 		-t "${IMAGE}:${VERSION}-${ARCH}" \
 		-t "${IMAGE}:${TAG}-${ARCH}" \
