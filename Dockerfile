@@ -50,10 +50,13 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 # PHP modules
+COPY --chmod=755 assets/check-php-security.sh /usr/local/bin/check-php-security
 RUN add-apt-repository -y ppa:ondrej/php && \
+  apt-get update && \
     apt-get install --no-install-recommends --yes \
         php${PHP_VERSION}-apcu \
         php${PHP_VERSION}-cli \
+        php${PHP_VERSION}-common \
         php${PHP_VERSION}-fpm \
         php${PHP_VERSION}-mysql \
         php${PHP_VERSION}-curl \
@@ -65,6 +68,7 @@ RUN add-apt-repository -y ppa:ondrej/php && \
         php${PHP_VERSION}-xml \
         php${PHP_VERSION}-soap \
         php${PHP_VERSION}-mbstring \
+      && check-php-security "${PHP_VERSION}" \
     && rm -rf /var/lib/apt/lists/*
 
 # configure nginx and php-fpm
@@ -73,6 +77,7 @@ RUN sed -i 's/\;date\.timezone\ =/date\.timezone\ =\ America\/New_York/g' /etc/p
     sed -i 's/\;clear_env\ =\ no/clear_env\ =\ no/g' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
     sed -i "s/www-data/${COMPOSE_USER}/g" /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf && \
     sed -i "s/www-data/${COMPOSE_USER}/g" /etc/nginx/nginx.conf
+RUN printf 'session.upload_progress.enabled = 0\n' > /etc/php/${PHP_VERSION}/fpm/conf.d/99-compose-security.ini
 
 # install python dependencies
 RUN pip3 install \
@@ -88,6 +93,9 @@ RUN cd /tmp/ && \
 
 # configure apcu, PHP errors logging, etc
 COPY assets/usr/local/etc/php/conf.d/*.ini /usr/local/etc/php/conf.d/
+RUN cp /usr/local/etc/php/conf.d/apcu.ini /etc/php/${PHP_VERSION}/mods-available/apcu.ini && \
+  cp /usr/local/etc/php/conf.d/log_errors.ini /etc/php/${PHP_VERSION}/mods-available/compose-log-errors.ini && \
+  phpenmod -v "${PHP_VERSION}" apcu compose-log-errors
 
 # copy nginx configuration file
 ADD assets/etc/nginx/default /etc/nginx/sites-available/default

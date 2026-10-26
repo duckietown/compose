@@ -5,6 +5,8 @@ wget
 # system utilities (used by compose)
 git
 net-tools
+sudo
+curl
 
 # system utilities (used by composer)
 zip
