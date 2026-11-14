@@ -111,8 +111,11 @@ class EditableConfiguration {
         }
         $default_cursor = Utils::cursorTo($this->default_configuration, $path);
         // ---
-        $cfg_cursor = Utils::cursorTo($this->configuration, $path);
-        if (!is_null($cfg_cursor) && (is_array($cfg_cursor) || strlen($cfg_cursor) > 0)) {
+        // Prefer path existence over strlen(): a saved boolean false (or 0)
+        // coerces to "" under strlen and would otherwise fall through to the
+        // schema/default value (often true for feature flags).
+        if (Utils::pathExists($this->configuration, $path)) {
+            $cfg_cursor = Utils::cursorTo($this->configuration, $path);
             return ['success' => true, 'data' => $cfg_cursor];
         }
         if (is_null($default) && !is_null($default_cursor)) {
