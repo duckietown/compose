@@ -1,3 +1,8 @@
+## 1.3.6 (November 20, 2026)
+  - feat(DTSW-8241): modernize dashboard chrome with shared design system, top-nav, and light/dark theme
+  - fix(DTSW-8240): honor saved boolean false in EditableConfiguration::get (feature flags can turn off)
+  - fix: makefile not building arm64v8 images using qemu on amd64
+
 ## 1.3.5 (January 22, 2026)
   - Update ASSETS_STORE_URL to new repository
   - Merge pull request #1 from duckietown/DTSW-7094-fix-php-version-7-0-not-found-in-dt-compose-commons
